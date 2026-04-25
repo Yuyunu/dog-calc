@@ -565,6 +565,18 @@ details.full .body {
 .ratio-line .badge.ok   { background: var(--ok-bg);   color: var(--ok-text);   border: 1px solid var(--ok-border); }
 .ratio-line .badge.warn { background: var(--warn-bg); color: var(--warn-text); border: 1px solid var(--warn-border); }
 .ratio-line .badge.bad  { background: var(--bad-bg);  color: var(--bad-text);  border: 1px solid var(--bad-border); }
+.ratio-line .muted { color: var(--text-dim); font-size: 11px; }
+.aa-ratio-block {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dashed var(--border);
+}
+.aa-ratio-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  margin: 0 0 4px 2px;
+}
 .footer {
   font-size: 11px;
   color: var(--text-dim);
@@ -661,6 +673,14 @@ details.full .body {
     </div>
     <div class="ratio-line" id="ratioLine"></div>
     <div class="ratio-line" id="ratioLineOmega"></div>
+    <div class="aa-ratio-block" id="aaRatioBlock" style="display:none;">
+      <div class="aa-ratio-title">胺基酸平衡比例</div>
+      <div class="ratio-line" id="aaRatio1"></div>
+      <div class="ratio-line" id="aaRatio2"></div>
+      <div class="ratio-line" id="aaRatio3"></div>
+      <div class="ratio-line" id="aaRatio4"></div>
+      <div class="ratio-line" id="aaRatio5"></div>
+    </div>
     <div class="status-summary">
       <div class="status-chip c-ok"><b id="cntOk">0</b>OK</div>
       <div class="status-chip c-def"><b id="cntDef">0</b>不足</div>
@@ -1113,6 +1133,49 @@ function renderResults(){
     else                          { label = "Omega-6 偏低"; cls = "warn"; } /* 1 <= r < 5 */
     ratioLineOmega.innerHTML = `Omega-6 : Omega-3 = ${r.toFixed(2)} : 1 <span class="badge ${cls}">${label}</span>`;
   } else ratioLineOmega.textContent = "";
+
+  /* Amino acid balance ratios — 5 pairs.
+     Status logic:
+       within ideal range  → 平衡 (ok / 綠)
+       within ±20% bounds  → 可接受 (warn / 黃)
+       beyond              → 失衡 (bad / 橘) */
+  (function renderAaRatios(){
+    const aaBlock = document.getElementById("aaRatioBlock");
+    const lys = sumNutrient("lys"), met = sumNutrient("met"), cys = sumNutrient("cys"),
+          arg = sumNutrient("arg"), leu = sumNutrient("leu"), ile = sumNutrient("ile"),
+          phe = sumNutrient("phe"), tyr = sumNutrient("tyr");
+    function aaStatus(v, lo, hi){
+      if (!isFinite(v) || v <= 0) return null;
+      if (hi == null){
+        if (v <= lo)         return {label:"平衡",   cls:"ok"};
+        if (v <= lo*1.2)     return {label:"可接受", cls:"warn"};
+        return                       {label:"失衡",   cls:"bad"};
+      }
+      if (v >= lo && v <= hi)               return {label:"平衡",   cls:"ok"};
+      if (v >= lo*0.8 && v <= hi*1.2)       return {label:"可接受", cls:"warn"};
+      return                                       {label:"失衡",   cls:"bad"};
+    }
+    const defs = [
+      {name:"Lys / (Met+Cys)",       val: (met+cys) > 0 ? lys/(met+cys)       : null, lo:0.5, hi:1.5, range:"理想 0.5 ~ 1.5"},
+      {name:"Lys / Arg",             val: arg       > 0 ? lys/arg             : null, lo:2.0, hi:null, range:"理想 < 2.0"},
+      {name:"(Met+Cys) / (Phe+Tyr)", val: (phe+tyr) > 0 ? (met+cys)/(phe+tyr) : null, lo:0.7, hi:1.1, range:"理想 0.7 ~ 1.1"},
+      {name:"Leu / Ile",             val: ile       > 0 ? leu/ile             : null, lo:1.5, hi:2.2, range:"理想 1.5 ~ 2.2"},
+      {name:"Met / Cys",             val: cys       > 0 ? met/cys             : null, lo:1.5, hi:2.5, range:"理想 1.5 ~ 2.5"},
+    ];
+    const anyValid = defs.some(d => d.val !== null);
+    if (!anyValid){ aaBlock.style.display = "none"; return; }
+    aaBlock.style.display = "";
+    for (let i = 0; i < defs.length; i++){
+      const d = defs[i];
+      const el = document.getElementById("aaRatio" + (i+1));
+      if (d.val === null){
+        el.innerHTML = `${d.name}: — <span class="muted">(${d.range})</span>`;
+        continue;
+      }
+      const st = aaStatus(d.val, d.lo, d.hi);
+      el.innerHTML = `${d.name} = ${d.val.toFixed(2)} <span class="muted">(${d.range})</span> <span class="badge ${st.cls}">${st.label}</span>`;
+    }
+  })();
 
   /* Daily targets */
   const targets = {};
