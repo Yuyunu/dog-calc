@@ -82,10 +82,9 @@ async function loadData() {
 // Group foods by category for picker
 // ============================================================
 function groupFoods() {
-  // Define category display order
+  // Define category display order (合併所有 補充品* 為「補充品」)
   const ORDER = [
-    '補充品', '補充品(顆)', '補充品(包)', '補充品(匙)',
-    '飼料',
+    '補充品', '飼料',
     '油脂', '油脂類', '調味', '種子',
     '肉類', '牛肉', '豬肉', '雞肉', '海鮮',
     '蛋類',
@@ -95,11 +94,12 @@ function groupFoods() {
   ];
   const groups = {};
   for (const food of STATE.foods) {
-    const cat = food.category || '其他';
+    let cat = food.category || '其他';
+    // 補充品(顆) / 補充品(包) / 補充品(匙) 全部合併到「補充品」
+    if (cat.startsWith('補充品')) cat = '補充品';
     if (!groups[cat]) groups[cat] = [];
     groups[cat].push(food);
   }
-  // Sort by ORDER
   return Object.keys(groups).sort((a, b) => {
     const ai = ORDER.indexOf(a);
     const bi = ORDER.indexOf(b);
