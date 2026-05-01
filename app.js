@@ -320,12 +320,13 @@ function calcAchievement(totals) {
 
     if (provided == null) provided = 0;
 
-    const dailyMin = std.aafco_min_per_1000kcal != null
-      ? std.aafco_min_per_1000kcal * der / 1000
-      : null;
-    const dailyRec = std.nrc_per_1000kcal != null
-      ? std.nrc_per_1000kcal * der / 1000
-      : null;
+    // AAFCO 沒給最低值時，用 NRC 建議值替代 (例如 EPA+DHA AAFCO 沒設、NRC 0.13g)
+    const aafcoMin = std.aafco_min_per_1000kcal;
+    const nrcRec = std.nrc_per_1000kcal;
+    const minPer1000 = (aafcoMin != null && aafcoMin > 0) ? aafcoMin
+                      : (nrcRec != null && nrcRec > 0 ? nrcRec : null);
+    const dailyMin = minPer1000 != null ? minPer1000 * der / 1000 : null;
+    const dailyRec = nrcRec != null ? nrcRec * der / 1000 : null;
     const dailyMax = std.aafco_max_per_1000kcal != null
       ? std.aafco_max_per_1000kcal * der / 1000
       : null;
