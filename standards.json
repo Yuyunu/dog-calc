@@ -451,6 +451,17 @@
    "high_warn": "含硫胺基酸過多 → 影響其他必需胺基酸吸收"
   },
   {
+   "key": "lys_metcys",
+   "name": "Lys : (Met+Cys)",
+   "numerator": "lys_g",
+   "denominator": "met_cys_g",
+   "ideal_min": 1.0,
+   "ideal_max": 2.0,
+   "ideal_label": "1 ~ 2",
+   "low_warn": "離胺酸不足 / 含硫胺基酸過多 → 蛋白合成受阻、Met+Cys 失衡",
+   "high_warn": "離胺酸過量 / 含硫胺基酸不足 → 抑制精胺酸代謝、毛髮粗糙"
+  },
+  {
    "key": "lys_arg",
    "name": "Lys : Arg",
    "numerator": "lys_g",
@@ -460,6 +471,17 @@
    "high_warn": "離胺酸過量 → 抑制精胺酸代謝 (cardiac dogs 需精胺酸保護心肌)",
    "ideal_min": 1.0,
    "ideal_max": 2.0
+  },
+  {
+   "key": "metcys_phetyr",
+   "name": "(Met+Cys) : (Phe+Tyr)",
+   "numerator": "met_cys_g",
+   "denominator": "phe_tyr_g",
+   "ideal_min": 0.4,
+   "ideal_max": 0.8,
+   "ideal_label": "0.4 ~ 0.8",
+   "low_warn": "含硫胺基酸不足 / 芳香族胺基酸過多 → 毛髮代謝失衡、肝功能異常",
+   "high_warn": "含硫胺基酸過多 / 芳香族胺基酸不足 → 神經傳導受影響"
   },
   {
    "key": "leu_ile",
