@@ -171,13 +171,14 @@ function renderRecipeList() {
       el('input', {
         type: 'number',
         class: 'recipe-portion',
-        value: item.portion,
+        value: item.portion == null ? '' : item.portion,
         step: '0.1',
         min: '0',
+        placeholder: '0',
         inputmode: 'decimal',
         'data-name': item.food.name,
-        onchange: e => updatePortion(item.food.name, parseFloat(e.target.value)),
-        oninput: e => updatePortion(item.food.name, parseFloat(e.target.value))
+        onchange: e => updatePortion(item.food.name, e.target.value),
+        oninput: e => updatePortion(item.food.name, e.target.value)
       }),
       el('span', { class: 'recipe-unit' }, item.food.unit),
       el('button', {
@@ -200,8 +201,9 @@ function calcTotals() {
   let totalGrams = 0;
 
   for (const item of Object.values(STATE.recipe)) {
-    const portion = item.portion || 0;
-    if (portion <= 0) continue;
+    // null / 空字串 / 0 視為無貢獻
+    const portion = (item.portion == null || item.portion === '') ? 0 : Number(item.portion);
+    if (!isFinite(portion) || portion <= 0) continue;
     const grams = portion * item.food.gramsPerUnit;
     totalGrams += grams;
     for (const k in item.food) {
@@ -490,7 +492,8 @@ function toggleFood(food) {
   if (STATE.recipe[food.name]) {
     delete STATE.recipe[food.name];
   } else {
-    STATE.recipe[food.name] = { food, portion: 0 };
+    // portion 預設 null (空白)，使用者輸入後才有值
+    STATE.recipe[food.name] = { food, portion: null };
   }
   saveState();
   rerender();
@@ -498,7 +501,13 @@ function toggleFood(food) {
 
 function updatePortion(name, value) {
   if (!STATE.recipe[name]) return;
-  STATE.recipe[name].portion = isFinite(value) && value >= 0 ? value : 0;
+  // 空字串 → null (顯示空白); 有效數字 → 該數字; 無效 → null
+  if (value === '' || value == null) {
+    STATE.recipe[name].portion = null;
+  } else {
+    const n = parseFloat(value);
+    STATE.recipe[name].portion = (isFinite(n) && n >= 0) ? n : null;
+  }
   saveState();
   recalcOnly();
 }
