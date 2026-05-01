@@ -634,6 +634,16 @@ async function init() {
     document.getElementById('btn-clear-all').addEventListener('click', clearAll);
     document.getElementById('btn-export').addEventListener('click', exportPDF);
 
+    // 重新整理按鈕 — 強制抓最新版本 (bypass cache)
+    const refreshBtn = document.getElementById('btn-refresh');
+    if (refreshBtn) {
+      refreshBtn.addEventListener('click', () => {
+        // 跳轉到 URL 加 timestamp，強制 cache miss
+        const url = window.location.origin + window.location.pathname + '?_v=' + Date.now();
+        window.location.href = url;
+      });
+    }
+
     rerender();
   } catch (e) {
     console.error('Init failed:', e);

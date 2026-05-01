@@ -122,6 +122,37 @@ html, body {
   font-weight: 500;
 }
 
+.header-btn {
+  background: rgba(255,255,255,.15);
+  color: white;
+  border: 1px solid rgba(255,255,255,.25);
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  margin-left: 4px;
+  transition: all 0.15s;
+  font-family: -apple-system, sans-serif;
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.header-btn:hover {
+  background: rgba(255,255,255,.3);
+  transform: rotate(180deg);
+}
+
+.header-btn:active {
+  background: rgba(255,255,255,.4);
+  transform: scale(0.92) rotate(180deg);
+}
+
 /* ============================================================
    Container & Cards
    ============================================================ */
