@@ -1,0 +1,913 @@
+/* ============================================================
+   狗狗鮮食營養計算器 v2 — styles.css
+   沿用舊版色系 (綠色卡片) + 暗色模式 + 手機優先 RWD
+   ============================================================ */
+
+:root {
+  --bg: #f5f5f0;
+  --card: #ffffff;
+  --text: #222;
+  --text-dim: #666;
+  --border: #e0ddd4;
+  --accent: #2f6d4f;
+  --accent-dark: #1a3a2e;
+  --accent-light: #e4f0e9;
+
+  --ok-bg: #e3f3e5;
+  --ok-border: #b5dcb9;
+  --ok-text: #1f5a2a;
+
+  --warn-bg: #fbf1d8;
+  --warn-border: #e6c98c;
+  --warn-text: #8a6914;
+
+  --bad-bg: #fae2de;
+  --bad-border: #e4a69c;
+  --bad-text: #8a2e24;
+
+  --ref-bg: #eeece4;
+  --ref-border: #d8d3c4;
+  --ref-text: #5f5f5f;
+
+  --chip: #eceae2;
+  --chip-active: #2f6d4f;
+  --chip-active-text: #ffffff;
+
+  --input: #fafaf7;
+  --shadow: 0 1px 3px rgba(0,0,0,.06);
+
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12181a;
+    --card: #1c2428;
+    --text: #e8e8e4;
+    --text-dim: #9aa0a0;
+    --border: #2d363a;
+    --accent: #5bae87;
+    --accent-dark: #2f6d4f;
+    --accent-light: #20342b;
+
+    --ok-bg: #1e3a26;
+    --ok-border: #3a6b47;
+    --ok-text: #8fd69b;
+
+    --warn-bg: #3d3114;
+    --warn-border: #75632c;
+    --warn-text: #ecc968;
+
+    --bad-bg: #3d1e19;
+    --bad-border: #7a3a30;
+    --bad-text: #f0a89e;
+
+    --ref-bg: #2a2a26;
+    --ref-border: #3a3a35;
+    --ref-text: #aaa8a0;
+
+    --chip: #2d363a;
+    --chip-active: #5bae87;
+    --chip-active-text: #12181a;
+
+    --input: #232b30;
+    --shadow: 0 1px 3px rgba(0,0,0,.3);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
+  font-size: 15px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ============================================================
+   Header
+   ============================================================ */
+.header {
+  background: var(--accent-dark);
+  color: white;
+  padding: 14px 16px calc(14px + env(safe-area-inset-top));
+  padding-top: calc(14px + env(safe-area-inset-top));
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 600;
+  flex: 1;
+}
+
+.header .version {
+  font-size: 11px;
+  background: rgba(255,255,255,.2);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+/* ============================================================
+   Container & Cards
+   ============================================================ */
+.container {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 12px;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+
+.card {
+  background: var(--card);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  padding: 14px;
+  margin-bottom: 12px;
+  box-shadow: var(--shadow);
+}
+
+.section-title {
+  margin: 0 0 8px 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.section-header .section-title {
+  margin: 0;
+}
+
+.hint {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin: 0 0 10px 0;
+}
+
+.empty-state {
+  color: var(--text-dim);
+  font-size: 13px;
+  text-align: center;
+  padding: 12px 0;
+  margin: 0;
+}
+
+/* ============================================================
+   Form (狗狗基本資料)
+   ============================================================ */
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.4fr;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field label {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+.field input,
+.field select {
+  font-size: 15px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--input);
+  color: var(--text);
+  font-family: inherit;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.field input:focus,
+.field select:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+.field select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23666' d='M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 10px center;
+  padding-right: 28px;
+}
+
+.energy-bar {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding: 8px 10px;
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.energy-bar .energy-label {
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.energy-bar .energy-value {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text);
+  margin: 0 2px;
+}
+
+.energy-bar .energy-unit {
+  font-size: 11px;
+}
+
+.energy-bar .energy-sep {
+  color: var(--border);
+  margin: 0 4px;
+}
+
+/* ============================================================
+   食材選擇 (chip toggle)
+   ============================================================ */
+.ingredient-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.picker-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.picker-group-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-dim);
+  margin: 4px 0 2px 0;
+  letter-spacing: .5px;
+}
+
+.picker-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 12px;
+  background: var(--chip);
+  color: var(--text);
+  border: 1px solid transparent;
+  border-radius: 18px;
+  font-size: 13px;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+}
+
+.chip:active {
+  transform: scale(0.96);
+}
+
+.chip:hover {
+  border-color: var(--accent);
+}
+
+.chip.active {
+  background: var(--chip-active);
+  color: var(--chip-active-text);
+  border-color: var(--chip-active);
+  font-weight: 500;
+}
+
+.chip .chip-icon {
+  font-size: 14px;
+  line-height: 1;
+}
+
+/* ============================================================
+   已加入食材 (recipe list)
+   ============================================================ */
+.recipe-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.recipe-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 8px;
+  align-items: center;
+  padding: 8px 10px;
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+
+.recipe-row .recipe-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.recipe-row .recipe-portion {
+  width: 64px;
+  padding: 6px 8px;
+  font-size: 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--input);
+  color: var(--text);
+  text-align: right;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.recipe-row .recipe-portion:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-light);
+}
+
+.recipe-row .recipe-unit {
+  font-size: 13px;
+  color: var(--text-dim);
+  min-width: 18px;
+}
+
+.recipe-row .recipe-remove {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  font-size: 18px;
+  width: 28px;
+  height: 28px;
+  border-radius: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.recipe-row .recipe-remove:hover {
+  background: var(--bad-bg);
+  color: var(--bad-text);
+}
+
+.recipe-summary {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+}
+
+.recipe-summary b {
+  color: var(--accent);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+/* ============================================================
+   乾物質基礎分析
+   ============================================================ */
+.dm-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  margin-top: 4px;
+}
+
+.dm-row {
+  display: grid;
+  grid-template-columns: 1fr 80px 80px;
+  gap: 8px;
+  padding: 7px 0;
+  font-size: 13px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.dm-row:last-child {
+  border-bottom: none;
+}
+
+.dm-row.dm-header {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 600;
+  text-align: right;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dm-row.dm-header > span:first-child {
+  text-align: left;
+}
+
+.dm-row.dm-meta {
+  background: var(--accent-light);
+  padding: 7px 8px;
+  margin: 0 -8px;
+  border-radius: var(--radius-sm);
+  border-bottom: none;
+}
+
+.dm-row.dm-em .dm-amount {
+  font-weight: 700;
+  color: var(--accent);
+}
+
+.dm-row .dm-name {
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dm-row .dm-formula {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 400;
+  font-family: ui-monospace, SF Mono, Menlo, Consolas, monospace;
+  font-style: italic;
+}
+
+.dm-row .dm-amount,
+.dm-row .dm-pct {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-family: ui-monospace, SF Mono, Menlo, Consolas, monospace;
+}
+
+.dm-row .dm-amount {
+  color: var(--text);
+  font-weight: 600;
+}
+
+.dm-row .dm-pct {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ============================================================
+   達標儀表板
+   ============================================================ */
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dash-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 50px;
+  gap: 8px;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.dash-row:last-child {
+  border-bottom: none;
+}
+
+.dash-row .dash-name {
+  font-weight: 500;
+}
+
+.dash-row .dash-name .dash-unit {
+  font-size: 10px;
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+.dash-row .dash-bar-wrap {
+  position: relative;
+  height: 14px;
+  background: var(--ref-bg);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.dash-row .dash-bar {
+  height: 100%;
+  border-radius: 7px;
+  transition: width 0.3s;
+}
+
+.dash-row .dash-pct {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.dash-row.status-ok .dash-bar { background: var(--ok-text); }
+.dash-row.status-ok .dash-pct { color: var(--ok-text); }
+
+.dash-row.status-warn .dash-bar { background: var(--warn-text); }
+.dash-row.status-warn .dash-pct { color: var(--warn-text); }
+
+.dash-row.status-bad .dash-bar { background: var(--bad-text); }
+.dash-row.status-bad .dash-pct { color: var(--bad-text); }
+
+.dash-row.status-ref .dash-bar { background: var(--ref-text); }
+.dash-row.status-ref .dash-pct { color: var(--ref-text); }
+
+.dashboard-summary {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid;
+}
+
+.badge b {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.badge-ok { background: var(--ok-bg); color: var(--ok-text); border-color: var(--ok-border); }
+.badge-warn { background: var(--warn-bg); color: var(--warn-text); border-color: var(--warn-border); }
+.badge-bad { background: var(--bad-bg); color: var(--bad-text); border-color: var(--bad-border); }
+
+/* ============================================================
+   比例分析
+   ============================================================ */
+.ratios {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.ratio-row {
+  padding: 8px 0;
+  font-size: 13px;
+  border-bottom: 1px dashed var(--border);
+}
+
+.ratio-row:last-child {
+  border-bottom: none;
+}
+
+.ratio-row-main {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: baseline;
+}
+
+.ratio-row .ratio-name {
+  color: var(--text);
+  font-weight: 500;
+}
+
+.ratio-row .ratio-ideal {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 400;
+  margin-left: 2px;
+}
+
+.ratio-row .ratio-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-family: ui-monospace, SF Mono, Menlo, Consolas, monospace;
+  font-size: 14px;
+}
+
+.ratio-row .ratio-value.ok { color: var(--ok-text); }
+.ratio-row .ratio-value.warn { color: var(--warn-text); }
+.ratio-row .ratio-value.bad { color: var(--bad-text); }
+.ratio-row .ratio-value.ref { color: var(--ref-text); }
+
+.ratio-row .ratio-warning {
+  margin-top: 5px;
+  padding: 6px 10px;
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-sm);
+  font-size: 11.5px;
+  line-height: 1.4;
+}
+
+.ratio-row .ratio-warning-icon {
+  font-weight: 700;
+  font-size: 13px;
+  margin-right: 2px;
+}
+
+/* OK rows: subtle accent */
+.ratio-row.status-ok {
+  /* default styling */
+}
+
+/* Warning rows: subtle bg highlight */
+.ratio-row.status-warn .ratio-name {
+  color: var(--warn-text);
+}
+
+/* ============================================================
+   按鈕
+   ============================================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--card);
+  color: var(--text);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.1s;
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: var(--accent-dark);
+}
+
+.btn-danger {
+  background: var(--bad-bg);
+  color: var(--bad-text);
+  border-color: var(--bad-border);
+  font-size: 12px;
+  padding: 5px 10px;
+}
+
+.btn-danger:hover {
+  background: var(--bad-text);
+  color: white;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin: 16px 0 8px 0;
+}
+
+.actions .btn {
+  flex: 1;
+  max-width: 200px;
+  padding: 12px 20px;
+  font-size: 15px;
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+.footer {
+  text-align: center;
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 16px;
+  padding: 0 8px;
+}
+
+.footer p {
+  margin: 4px 0;
+}
+
+.footer .disclaimer {
+  color: var(--bad-text);
+  font-weight: 500;
+  font-size: 10px;
+  margin-top: 8px;
+}
+
+/* ============================================================
+   Print-only elements (hidden on screen)
+   ============================================================ */
+.print-only {
+  display: none;
+}
+
+/* ============================================================
+   Print
+   ============================================================ */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 1.2cm;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+    font-size: 10pt;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Hide screen-only elements */
+  .header,
+  .actions,
+  .btn,
+  .ingredient-picker,
+  .hint,
+  .recipe-row .recipe-remove,
+  .section-header .btn,
+  #ingredient-picker,
+  .empty-state,
+  .footer .disclaimer {
+    display: none !important;
+  }
+
+  .print-only { display: block; }
+
+  /* Print header */
+  .print-header {
+    border-bottom: 2px solid #1a3a2e;
+    padding-bottom: 8pt;
+    margin-bottom: 12pt;
+  }
+
+  .print-title {
+    font-size: 16pt;
+    color: #1a3a2e;
+    margin: 0 0 6pt 0;
+  }
+
+  .print-meta {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4pt 12pt;
+    font-size: 9pt;
+    color: #333;
+  }
+
+  .print-meta b {
+    color: #1a3a2e;
+  }
+
+  /* Compact cards for print */
+  .container {
+    padding: 0;
+    max-width: none;
+  }
+
+  .card {
+    box-shadow: none !important;
+    border: 1px solid #888 !important;
+    background: white !important;
+    margin-bottom: 8pt;
+    padding: 8pt;
+    page-break-inside: avoid;
+  }
+
+  .section-title {
+    color: #1a3a2e !important;
+    font-size: 11pt;
+    margin: 0 0 4pt 0;
+  }
+
+  /* Recipe rows in print: show as table-like layout */
+  .recipe-row {
+    background: white !important;
+    border: 1px solid #ccc !important;
+    padding: 4pt 8pt !important;
+    grid-template-columns: 1fr auto auto !important;
+  }
+
+  .recipe-row .recipe-name {
+    font-size: 10pt;
+  }
+
+  .recipe-row .recipe-portion {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    width: auto !important;
+    font-weight: 600;
+    color: #1a3a2e !important;
+    font-size: 10pt;
+  }
+
+  /* Recipe summary visible */
+  .recipe-summary {
+    background: #f5f5f0 !important;
+    page-break-after: avoid;
+  }
+
+  /* Dashboard rows */
+  .dash-row {
+    grid-template-columns: 100px 1fr 50px !important;
+    font-size: 9pt;
+    page-break-inside: avoid;
+  }
+
+  .dash-bar-wrap {
+    background: #eee !important;
+  }
+
+  .dash-row.status-ok .dash-bar { background: #1f5a2a !important; }
+  .dash-row.status-warn .dash-bar { background: #8a6914 !important; }
+  .dash-row.status-bad .dash-bar { background: #8a2e24 !important; }
+  .dash-row.status-ref .dash-bar { background: #999 !important; }
+
+  /* Badges */
+  .badge {
+    border: 1px solid #888 !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  /* Ratios */
+  .ratio-row {
+    font-size: 9pt;
+    page-break-inside: avoid;
+  }
+
+  /* Energy bar */
+  .energy-bar {
+    background: #e4f0e9 !important;
+    color: #1a3a2e !important;
+  }
+
+  /* Footer */
+  .footer {
+    font-size: 8pt;
+    color: #555;
+    margin-top: 8pt;
+    padding-top: 4pt;
+    border-top: 1px solid #ccc;
+  }
+}
+
+/* ============================================================
+   Tablet/Desktop overrides
+   ============================================================ */
+@media (min-width: 700px) {
+  .container { padding: 20px; }
+  .card { padding: 20px; }
+  .dash-row { grid-template-columns: 140px 1fr 60px; font-size: 14px; }
+}

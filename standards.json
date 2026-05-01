@@ -1,0 +1,487 @@
+{
+ "rer_formula": "70 * weight^0.75",
+ "der_formula": "RER * activity_coef",
+ "default_weight": 11.5,
+ "default_activity": 1.2,
+ "activity_options": [
+  {
+   "value": 1.6,
+   "label": "已絕育成犬 (一般居家犬)"
+  },
+  {
+   "value": 1.8,
+   "label": "未絕育成犬 (未絕育)"
+  },
+  {
+   "value": 1.2,
+   "label": "不活躍/肥胖傾向 (需減重)"
+  },
+  {
+   "value": 2.0,
+   "label": "活躍犬 (大量運動)"
+  },
+  {
+   "value": 3.0,
+   "label": "高活動量工作犬 (工作犬)"
+  },
+  {
+   "value": 1.4,
+   "label": "老年犬 (7歲以上)"
+  }
+ ],
+ "nutrients": [
+  {
+   "key": "protein",
+   "name": "蛋白質",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 45.0,
+   "nrc_per_1000kcal": 50.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "fat",
+   "name": "脂肪",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 13.8,
+   "nrc_per_1000kcal": 13.8,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "omega6_g",
+   "name": "Omega-6 脂肪酸 (LA)",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 2.8,
+   "nrc_per_1000kcal": 2.8,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "omega3_g",
+   "name": "Omega-3 脂肪酸 (ALA)",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 0.11,
+   "nrc_per_1000kcal": 0.11,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "epa_dha",
+   "name": "EPA + DHA",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 0.0,
+   "nrc_per_1000kcal": 0.13,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "ca_mg",
+   "name": "鈣",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 1250.0,
+   "nrc_per_1000kcal": 1000.0,
+   "aafco_max_per_1000kcal": 6250.0
+  },
+  {
+   "key": "p_mg",
+   "name": "磷",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 1000.0,
+   "nrc_per_1000kcal": 750.0,
+   "aafco_max_per_1000kcal": 4000.0
+  },
+  {
+   "key": "k_mg",
+   "name": "鉀",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 1500.0,
+   "nrc_per_1000kcal": 1000.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "na_mg",
+   "name": "鈉",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 200.0,
+   "nrc_per_1000kcal": 200.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "cl_g",
+   "name": "氯",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 0.3,
+   "nrc_per_1000kcal": 0.3,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "mg_mg",
+   "name": "鎂",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 150.0,
+   "nrc_per_1000kcal": 150.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "fe_mg",
+   "name": "鐵",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 10.0,
+   "nrc_per_1000kcal": 7.5,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "cu_mg",
+   "name": "銅",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 1.83,
+   "nrc_per_1000kcal": 1.5,
+   "aafco_max_per_1000kcal": 6.25
+  },
+  {
+   "key": "zn_mg",
+   "name": "鋅",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 20.0,
+   "nrc_per_1000kcal": 15.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "mn_mg",
+   "name": "錳",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 1.25,
+   "nrc_per_1000kcal": 1.2,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "iodine_ug",
+   "name": "碘",
+   "unit": "μg",
+   "aafco_min_per_1000kcal": 250.0,
+   "nrc_per_1000kcal": 220.0,
+   "aafco_max_per_1000kcal": 2750.0
+  },
+  {
+   "key": "se_ug",
+   "name": "硒",
+   "unit": "μg",
+   "aafco_min_per_1000kcal": 87.5,
+   "nrc_per_1000kcal": 87.5,
+   "aafco_max_per_1000kcal": 500.0
+  },
+  {
+   "key": "vita_iu",
+   "name": "維生素 A",
+   "unit": "IU",
+   "aafco_min_per_1000kcal": 1250.0,
+   "nrc_per_1000kcal": 1263.0,
+   "aafco_max_per_1000kcal": 62500.0
+  },
+  {
+   "key": "vitd_iu",
+   "name": "維生素 D",
+   "unit": "IU",
+   "aafco_min_per_1000kcal": 125.0,
+   "nrc_per_1000kcal": 136.0,
+   "aafco_max_per_1000kcal": 750.0
+  },
+  {
+   "key": "vite_iu",
+   "name": "維生素 E",
+   "unit": "IU",
+   "aafco_min_per_1000kcal": 12.5,
+   "nrc_per_1000kcal": 7.5,
+   "aafco_max_per_1000kcal": 250.0
+  },
+  {
+   "key": "vitk_mg",
+   "name": "維生素 K",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 0.41,
+   "nrc_per_1000kcal": 0.41,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "b1_mg",
+   "name": "維生素 B1 (硫胺素)",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 0.56,
+   "nrc_per_1000kcal": 0.56,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "b2_mg",
+   "name": "維生素 B2 (核黃素)",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 1.3,
+   "nrc_per_1000kcal": 1.3,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "b3_mg",
+   "name": "維生素 B3 (菸鹼酸)",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 3.4,
+   "nrc_per_1000kcal": 4.25,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "b5_mg",
+   "name": "維生素 B5 (泛酸)",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 3.0,
+   "nrc_per_1000kcal": 3.75,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "b6_mg",
+   "name": "維生素 B6 (吡哆醇)",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 0.375,
+   "nrc_per_1000kcal": 0.375,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "b9_ug",
+   "name": "維生素 B9 (葉酸)",
+   "unit": "μg",
+   "aafco_min_per_1000kcal": 54.0,
+   "nrc_per_1000kcal": 54.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "b12_ug",
+   "name": "維生素 B12",
+   "unit": "μg",
+   "aafco_min_per_1000kcal": 7.0,
+   "nrc_per_1000kcal": 9.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "choline_mg",
+   "name": "膽鹼",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": 340.0,
+   "nrc_per_1000kcal": 340.0,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "arg_g",
+   "name": "精胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.28,
+   "nrc_per_1000kcal": 0.88,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "his_g",
+   "name": "組胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 0.48,
+   "nrc_per_1000kcal": 0.48,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "ile_g",
+   "name": "異白胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 0.95,
+   "nrc_per_1000kcal": 0.95,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "leu_g",
+   "name": "白胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.7,
+   "nrc_per_1000kcal": 1.7,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "lys_g",
+   "name": "離胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.58,
+   "nrc_per_1000kcal": 0.88,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "met_g",
+   "name": "甲硫胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 0.83,
+   "nrc_per_1000kcal": 0.83,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "met_cys_g",
+   "name": "甲硫胺酸+半胱胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.63,
+   "nrc_per_1000kcal": 1.63,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "phe_g",
+   "name": "苯丙胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.13,
+   "nrc_per_1000kcal": 1.13,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "phe_tyr_g",
+   "name": "苯丙胺酸+酪胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.85,
+   "nrc_per_1000kcal": 1.85,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "thr_g",
+   "name": "蘇胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.08,
+   "nrc_per_1000kcal": 1.08,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "trp_g",
+   "name": "色胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 0.4,
+   "nrc_per_1000kcal": 0.34,
+   "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "val_g",
+   "name": "纈胺酸",
+   "unit": "g",
+   "aafco_min_per_1000kcal": 1.23,
+   "nrc_per_1000kcal": 1.23,
+   "aafco_max_per_1000kcal": null
+  }
+ ],
+ "ratios": [
+  {
+   "key": "ca_p",
+   "name": "鈣磷比 (Ca:P)",
+   "numerator": "ca_mg",
+   "denominator": "p_mg",
+   "ideal_min": 1.0,
+   "ideal_max": 2.0,
+   "ideal_label": "1:1 ~ 2:1",
+   "low_warn": "鈣不足 / 磷過高 → 骨質疏鬆、心臟腎臟負擔加重 (cardiac/renal 高風險)",
+   "high_warn": "鈣過高 / 磷不足 → 鋅、鐵、銅吸收受阻、能量代謝失衡"
+  },
+  {
+   "key": "omega_6_3",
+   "name": "Omega-6 : Omega-3",
+   "numerator": "omega6_g",
+   "denominator": "omega3_g",
+   "ideal_min": 5.0,
+   "ideal_max": 10.0,
+   "ideal_label": "5:1 ~ 10:1",
+   "low_warn": "Omega-3 過多 / Omega-6 不足 → 免疫抑制、傷口癒合延遲、出血傾向",
+   "high_warn": "Omega-6 過多 / Omega-3 不足 → 發炎反應加劇、心血管風險升高"
+  },
+  {
+   "key": "zn_cu",
+   "name": "鋅銅比 (Zn:Cu)",
+   "numerator": "zn_mg",
+   "denominator": "cu_mg",
+   "ideal_min": 8.0,
+   "ideal_max": 15.0,
+   "ideal_label": "8:1 ~ 15:1",
+   "low_warn": "銅相對高 → 銅蓄積、肝損傷風險 (特定犬種如貝靈頓㹴更敏感)",
+   "high_warn": "鋅相對高 → 銅吸收受阻、可能貧血、毛髮褪色"
+  },
+  {
+   "key": "ca_per_1000kcal",
+   "name": "鈣 / 1000 kcal",
+   "numerator": "ca_mg",
+   "denominator": "kcal",
+   "scale": 1000,
+   "ideal_label": "1250 ~ 6250 mg",
+   "low_warn": "鈣供應不足 → 骨密度下降、低血鈣痙攣",
+   "high_warn": "鈣過量 → 鋅鐵吸收受阻、軟骨發育異常",
+   "ideal_min": 1250,
+   "ideal_max": 6250
+  },
+  {
+   "key": "p_per_1000kcal",
+   "name": "磷 / 1000 kcal",
+   "numerator": "p_mg",
+   "denominator": "kcal",
+   "scale": 1000,
+   "ideal_label": "1000 ~ 4000 mg",
+   "low_warn": "磷不足 → 骨骼脆弱、能量代謝下降",
+   "high_warn": "磷過量 → 心臟病/腎病進展加快 (ACVIM B1-B2 高風險!)",
+   "ideal_min": 1000,
+   "ideal_max": 4000
+  },
+  {
+   "key": "protein_per_1000kcal",
+   "name": "蛋白質 / 1000 kcal",
+   "numerator": "protein",
+   "denominator": "kcal",
+   "scale": 1000,
+   "ideal_label": "≥ 45 g",
+   "low_warn": "蛋白質不足 → 肌肉流失、免疫下降、傷口癒合慢",
+   "high_warn": "蛋白質過量 → 腎臟負擔加重 (慢性腎病犬要降)",
+   "ideal_min": 45
+  },
+  {
+   "key": "fat_per_1000kcal",
+   "name": "脂肪 / 1000 kcal",
+   "numerator": "fat",
+   "denominator": "kcal",
+   "scale": 1000,
+   "ideal_label": "≥ 13.8 g",
+   "low_warn": "脂肪不足 → 能量不足、脂溶性維生素吸收差、皮毛粗糙",
+   "high_warn": "脂肪過量 → 胰臟炎風險、肥胖、cardiac 心臟負擔",
+   "ideal_min": 13.8
+  },
+  {
+   "key": "metcys_lys",
+   "name": "Met+Cys : Lys",
+   "numerator": "met_cys_g",
+   "denominator": "lys_g",
+   "ideal_min": 0.5,
+   "ideal_max": 1.0,
+   "ideal_label": "0.5 ~ 1.0",
+   "low_warn": "甲硫胺酸/半胱胺酸不足 → 毛髮品質差、肝臟代謝失衡",
+   "high_warn": "含硫胺基酸過多 → 影響其他必需胺基酸吸收"
+  },
+  {
+   "key": "lys_arg",
+   "name": "Lys : Arg",
+   "numerator": "lys_g",
+   "denominator": "arg_g",
+   "ideal_label": "1 ~ 2",
+   "low_warn": "離胺酸不足 → 蛋白質合成受阻、生長發育問題",
+   "high_warn": "離胺酸過量 → 抑制精胺酸代謝 (cardiac dogs 需精胺酸保護心肌)",
+   "ideal_min": 1.0,
+   "ideal_max": 2.0
+  },
+  {
+   "key": "leu_ile",
+   "name": "Leu : Ile",
+   "numerator": "leu_g",
+   "denominator": "ile_g",
+   "ideal_label": "1.5 ~ 2.5",
+   "low_warn": "白胺酸不足 → BCAA 失衡、肌肉蛋白合成下降",
+   "high_warn": "白胺酸過量 → 異白胺酸吸收受阻、BCAA 平衡失衡",
+   "ideal_min": 1.5,
+   "ideal_max": 2.5
+  },
+  {
+   "key": "met_cys",
+   "name": "Met : Cys",
+   "numerator": "met_g",
+   "denominator": "cys_g",
+   "ideal_label": "1 ~ 2",
+   "low_warn": "甲硫胺酸不足 → 含硫代謝失衡、肝功能異常",
+   "high_warn": "甲硫胺酸過量 → 高同半胱胺酸血症、心血管風險",
+   "ideal_min": 1.0,
+   "ideal_max": 2.0
+  }
+ ]
+}
