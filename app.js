@@ -405,11 +405,18 @@ function renderDashboard(achievement) {
 // ============================================================
 // 比例分析
 // ============================================================
+// 處理 composite keys (例如 met_cys_g = met_g + cys_g)
+function getTotal(totals, key) {
+  if (key === 'met_cys_g') return (totals.met_g || 0) + (totals.cys_g || 0);
+  if (key === 'phe_tyr_g') return (totals.phe_g || 0) + (totals.tyr_g || 0);
+  return totals[key] || 0;
+}
+
 function calcRatios(totals) {
   const results = [];
   for (const r of STATE.standards.ratios) {
-    const num = totals[r.numerator] || 0;
-    const den = totals[r.denominator] || 0;
+    const num = getTotal(totals, r.numerator);
+    const den = getTotal(totals, r.denominator);
     let value;
     if (den === 0) {
       value = null;
