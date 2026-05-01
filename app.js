@@ -643,13 +643,27 @@ async function init() {
     document.getElementById('btn-clear-all').addEventListener('click', clearAll);
     document.getElementById('btn-export').addEventListener('click', exportPDF);
 
-    // 重新整理按鈕 — 強制抓最新版本 (bypass cache)
+    // 重新整理按鈕 — 強制抓最新版本 (清 cache + reload)
     const refreshBtn = document.getElementById('btn-refresh');
     if (refreshBtn) {
-      refreshBtn.addEventListener('click', () => {
-        // 跳轉到 URL 加 timestamp，強制 cache miss
-        const url = window.location.origin + window.location.pathname + '?_v=' + Date.now();
-        window.location.href = url;
+      refreshBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        refreshBtn.disabled = true;
+        refreshBtn.textContent = '...';
+        try {
+          // 清 service worker cache (如有)
+          if ('caches' in window) {
+            const keys = await caches.keys();
+            await Promise.all(keys.map(k => caches.delete(k)));
+          }
+        } catch (err) {
+          console.warn('cache 清除失敗:', err);
+        }
+        // 強制重新載入 (附 timestamp 確保 cache miss)
+        const ts = Date.now();
+        const u = new URL(window.location.href);
+        u.searchParams.set('_v', ts);
+        window.location.replace(u.toString());
       });
     }
 
@@ -662,3 +676,9 @@ async function init() {
 }
 
 document.addEventListener('DOMContentLoaded', init);
+
+// Service Worker 註冊（network-first，避免舊版被 cache）
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(err =>
+    console.warn('SW register failed:', err));
+}
