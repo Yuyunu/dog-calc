@@ -209,9 +209,16 @@ html, body {
    ============================================================ */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1.4fr;
+  grid-template-columns: 1fr;
   gap: 10px;
   margin-bottom: 10px;
+}
+
+/* 寬螢幕 (>=480px) 才並排 */
+@media (min-width: 480px) {
+  .form-grid {
+    grid-template-columns: minmax(110px, 1fr) 2fr;
+  }
 }
 
 .field {
@@ -237,6 +244,9 @@ html, body {
   font-family: inherit;
   -webkit-appearance: none;
   appearance: none;
+  width: 100%;
+  min-width: 0;
+  text-overflow: ellipsis;
 }
 
 .field input:focus,
