@@ -193,14 +193,20 @@ def main():
         }
         standards_nutrients.append(std)
     
-    # Activity coefficients
+    # Activity coefficients (label 含 ×係數)
     activities = []
     for r in range(14, 20):
         s = ws_dog.cell(row=r, column=1).value
         v = ws_dog.cell(row=r, column=2).value
         d = ws_dog.cell(row=r, column=3).value
         if s and v:
-            activities.append({"value": to_num(v), "label": f"{s} ({d})" if d else s})
+            v_num = to_num(v)
+            v_str = f"{v_num:g}"  # 1.6 / 2 / 3 等
+            if d:
+                label = f"{s} ×{v_str}（{d}）"
+            else:
+                label = f"{s} ×{v_str}"
+            activities.append({"value": v_num, "label": label})
     
     standards = {
         "rer_formula": "70 * weight^0.75",
