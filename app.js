@@ -377,17 +377,39 @@ function renderDashboard(achievement) {
     const barWidth = r.pct != null
       ? Math.min(100, Math.max(2, r.pct * 100))
       : 0;
+
+    // 建議區間 + 實際值
+    const fmtVal = (v) => {
+      if (v == null || !isFinite(v)) return '—';
+      if (Math.abs(v) >= 100) return v.toFixed(0);
+      if (Math.abs(v) >= 10) return v.toFixed(1);
+      if (Math.abs(v) >= 0.1) return v.toFixed(2);
+      return v.toFixed(3);
+    };
+    let rangeText = '';
+    if (r.dailyMin != null && r.dailyMax != null) {
+      rangeText = `建議 ${fmtVal(r.dailyMin)} ~ ${fmtVal(r.dailyMax)}`;
+    } else if (r.dailyMin != null) {
+      rangeText = `最低 ${fmtVal(r.dailyMin)}`;
+    } else {
+      rangeText = '參考用';
+    }
+    const providedText = `實際 ${fmtVal(r.provided)} ${r.unit || ''}`;
+
     const row = el('div', {
       class: 'dash-row status-' + r.status
     }, [
-      el('div', { class: 'dash-name' }, [
-        r.name,
-        el('span', { class: 'dash-unit' }, ' (' + (r.unit || '') + ')')
+      el('div', { class: 'dash-row-main' }, [
+        el('div', { class: 'dash-name' }, [
+          r.name,
+          el('span', { class: 'dash-unit' }, ' (' + (r.unit || '') + ')')
+        ]),
+        el('div', { class: 'dash-bar-wrap' },
+          el('div', { class: 'dash-bar', style: `width: ${barWidth}%` })
+        ),
+        el('div', { class: 'dash-pct' }, fmtPct(r.pct))
       ]),
-      el('div', { class: 'dash-bar-wrap' },
-        el('div', { class: 'dash-bar', style: `width: ${barWidth}%` })
-      ),
-      el('div', { class: 'dash-pct' }, fmtPct(r.pct))
+      el('div', { class: 'dash-detail' }, `${providedText} / ${rangeText}`)
     ]);
     wrap.appendChild(row);
 

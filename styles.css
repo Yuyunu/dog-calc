@@ -539,17 +539,29 @@ html, body {
 }
 
 .dash-row {
-  display: grid;
-  grid-template-columns: 110px 1fr 50px;
-  gap: 8px;
-  align-items: center;
-  padding: 6px 0;
+  padding: 8px 0;
   font-size: 13px;
   border-bottom: 1px dashed var(--border);
 }
 
 .dash-row:last-child {
   border-bottom: none;
+}
+
+.dash-row-main {
+  display: grid;
+  grid-template-columns: 110px 1fr 56px;
+  gap: 8px;
+  align-items: center;
+}
+
+.dash-detail {
+  font-size: 10.5px;
+  color: var(--text-dim);
+  margin-top: 4px;
+  margin-left: 4px;
+  font-family: ui-monospace, SF Mono, Menlo, Consolas, monospace;
+  letter-spacing: -0.2px;
 }
 
 .dash-row .dash-name {
