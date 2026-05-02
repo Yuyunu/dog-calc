@@ -194,7 +194,15 @@ function renderRecipeList() {
 
   for (const item of items) {
     const row = el('div', { class: 'recipe-row' }, [
-      el('span', { class: 'recipe-name' }, item.food.name),
+      el('button', {
+        type: 'button',
+        class: 'recipe-name recipe-name-link',
+        title: '查看營養成分詳情',
+        onclick: () => showFoodDetail(item.food)
+      }, [
+        item.food.name,
+        el('span', { class: 'recipe-name-info' }, 'ⓘ')
+      ]),
       el('input', {
         type: 'number',
         class: 'recipe-portion',
@@ -726,6 +734,186 @@ function loadState() {
 }
 
 // ============================================================
+// 食材詳情 Modal
+// ============================================================
+// 每筆食材按需求顯示不同基準: 1g / 1顆 / 1包 / 100g
+const PER_1G_FOODS = new Set([
+  'V-Integra', 'Canine Complete', 'Hypo Canine Complete',
+  '黑芝麻粉', '鹽', '汪喵星球牛磺酸',
+]);
+
+function getDisplayBasis(food) {
+  // OhPet 魚油 (顆) / Skin-5 / Pro-6 (包)
+  if (food.unit === '顆' || food.unit === '包' || food.unit === '匙') {
+    return {
+      mult: food.gramsPerUnit || 1,
+      basisLabel: `per 1 ${food.unit} (${food.gramsPerUnit}g)`,
+      unitSuffix: '/' + food.unit,
+    };
+  }
+  // 補充品粉類 / 種子 / 調味
+  if (PER_1G_FOODS.has(food.name)) {
+    return { mult: 1, basisLabel: 'per 1g', unitSuffix: '/g' };
+  }
+  // 其他食材
+  return { mult: 100, basisLabel: 'per 100g', unitSuffix: '/100g' };
+}
+
+const DETAIL_SECTIONS = [
+  {
+    id: 'macro', label: '巨量營養素',
+    fields: [
+      { key: 'kcal', name: '熱量', unit: 'kcal' },
+      { key: 'protein', name: '蛋白質', unit: 'g' },
+      { key: 'fat', name: '脂肪', unit: 'g' },
+      { key: 'carb', name: '碳水化合物', unit: 'g' },
+      { key: 'fiber', name: '膳食纖維', unit: 'g' },
+      { key: 'water_g', name: '水分', unit: 'g' },
+    ]
+  },
+  {
+    id: 'mineral', label: '礦物質',
+    fields: [
+      { key: 'ca_mg', name: '鈣 (Ca)', unit: 'mg' },
+      { key: 'p_mg', name: '磷 (P)', unit: 'mg' },
+      { key: 'k_mg', name: '鉀 (K)', unit: 'mg' },
+      { key: 'na_mg', name: '鈉 (Na)', unit: 'mg' },
+      { key: 'mg_mg', name: '鎂 (Mg)', unit: 'mg' },
+      { key: 'fe_mg', name: '鐵 (Fe)', unit: 'mg' },
+      { key: 'zn_mg', name: '鋅 (Zn)', unit: 'mg' },
+      { key: 'cu_mg', name: '銅 (Cu)', unit: 'mg' },
+      { key: 'mn_mg', name: '錳 (Mn)', unit: 'mg' },
+      { key: 'iodine_ug', name: '碘 (I)', unit: 'μg' },
+      { key: 'se_ug', name: '硒 (Se)', unit: 'μg' },
+    ]
+  },
+  {
+    id: 'vitamin', label: '維生素',
+    fields: [
+      { key: 'vita_iu', name: '維生素 A', unit: 'IU' },
+      { key: 'vita_rae_ug', name: '維生素 A (RAE)', unit: 'μg' },
+      { key: 'vitd_iu', name: '維生素 D', unit: 'IU' },
+      { key: 'vite_mg', name: '維生素 E', unit: 'mg' },
+      { key: 'vite_iu', name: '維生素 E', unit: 'IU' },
+      { key: 'b1_mg', name: '維生素 B1 (硫胺素)', unit: 'mg' },
+      { key: 'b2_mg', name: '維生素 B2 (核黃素)', unit: 'mg' },
+      { key: 'b3_mg', name: '維生素 B3 (菸鹼酸)', unit: 'mg' },
+      { key: 'b5_mg', name: '維生素 B5 (泛酸)', unit: 'mg' },
+      { key: 'b6_mg', name: '維生素 B6 (吡哆醇)', unit: 'mg' },
+      { key: 'b9_ug', name: '維生素 B9 (葉酸)', unit: 'μg' },
+      { key: 'b12_ug', name: '維生素 B12', unit: 'μg' },
+      { key: 'choline_mg', name: '膽鹼', unit: 'mg' },
+    ]
+  },
+  {
+    id: 'fa', label: 'Omega 脂肪酸',
+    fields: [
+      { key: 'omega6_g', name: 'Omega-6', unit: 'g' },
+      { key: 'omega3_g', name: 'Omega-3', unit: 'g' },
+    ]
+  },
+  {
+    id: 'aa', label: '必需胺基酸',
+    fields: [
+      { key: 'arg_g', name: '精胺酸 (Arg)', unit: 'g' },
+      { key: 'his_g', name: '組胺酸 (His)', unit: 'g' },
+      { key: 'ile_g', name: '異白胺酸 (Ile)', unit: 'g' },
+      { key: 'leu_g', name: '白胺酸 (Leu)', unit: 'g' },
+      { key: 'lys_g', name: '離胺酸 (Lys)', unit: 'g' },
+      { key: 'met_g', name: '甲硫胺酸 (Met)', unit: 'g' },
+      { key: 'cys_g', name: '半胱胺酸 (Cys)', unit: 'g' },
+      { key: 'phe_g', name: '苯丙胺酸 (Phe)', unit: 'g' },
+      { key: 'tyr_g', name: '酪胺酸 (Tyr)', unit: 'g' },
+      { key: 'thr_g', name: '蘇胺酸 (Thr)', unit: 'g' },
+      { key: 'trp_g', name: '色胺酸 (Trp)', unit: 'g' },
+      { key: 'val_g', name: '纈胺酸 (Val)', unit: 'g' },
+    ]
+  },
+  {
+    id: 'other', label: '其他 / 心臟保健',
+    fields: [
+      { key: 'taurine_g', name: '牛磺酸 (Taurine)', unit: 'g' },
+    ]
+  }
+];
+
+function fmtDetailValue(v) {
+  if (v == null || !isFinite(v)) return '0';
+  if (v === 0) return '0';
+  if (Math.abs(v) >= 1000) return v.toFixed(0);
+  if (Math.abs(v) >= 100) return v.toFixed(1);
+  if (Math.abs(v) >= 10) return v.toFixed(2);
+  if (Math.abs(v) >= 0.1) return v.toFixed(3);
+  if (Math.abs(v) >= 0.001) return v.toFixed(4);
+  return v.toFixed(5);
+}
+
+function showFoodDetail(food) {
+  const modal = document.getElementById('food-modal');
+  const title = document.getElementById('food-modal-title');
+  const meta = document.getElementById('food-modal-meta');
+  const body = document.getElementById('food-modal-body');
+
+  title.textContent = food.name;
+  const metaParts = [];
+  if (food.en) metaParts.push(food.en);
+  if (food.category) metaParts.push(food.category);
+  if (food.unit) metaParts.push(`輸入單位: ${food.unit} (× ${food.gramsPerUnit} g)`);
+  meta.textContent = metaParts.join(' · ');
+
+  body.innerHTML = '';
+
+  // 取得本食材的顯示基準 (每 1g / 1顆 / 1包 / 100g)
+  const basis = getDisplayBasis(food);
+
+  for (const sec of DETAIL_SECTIONS) {
+    const rows = sec.fields.map(f => {
+      const vPerG = food[f.key];
+      const v = (vPerG || 0) * basis.mult;  // per 1g × multiplier
+      const isZero = !v || v === 0;
+      return el('tr', { class: isZero ? 'zero' : '' }, [
+        el('td', { class: 'detail-name' }, f.name),
+        el('td', { class: 'detail-value' }, fmtDetailValue(v)),
+        el('td', { class: 'detail-unit' }, f.unit + basis.unitSuffix),
+      ]);
+    });
+    const section = el('div', { class: 'detail-section ' + sec.id }, [
+      el('div', { class: 'detail-section-title' }, `${sec.label} (${basis.basisLabel})`),
+      el('table', { class: 'detail-table' },
+        el('tbody', {}, rows)
+      )
+    ]);
+    body.appendChild(section);
+  }
+
+  // 來源 / 備註
+  if (food.source || food.notes) {
+    const noteEl = el('div', { class: 'detail-source-note' });
+    if (food.source) {
+      noteEl.appendChild(el('div', {}, [
+        el('span', { class: 'src-label' }, '資料來源：'),
+        food.source
+      ]));
+    }
+    if (food.notes) {
+      noteEl.appendChild(el('div', { style: 'margin-top: 4px;' }, [
+        el('span', { class: 'src-label' }, '備註：'),
+        food.notes
+      ]));
+    }
+    body.appendChild(noteEl);
+  }
+
+  modal.hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+
+function hideFoodDetail() {
+  document.getElementById('food-modal').hidden = true;
+  document.body.style.overflow = '';
+}
+
+// ============================================================
 // Export PDF — 用瀏覽器原生 print to PDF
 // ============================================================
 function exportPDF() {
@@ -783,6 +971,13 @@ async function init() {
     });
     document.getElementById('btn-clear-all').addEventListener('click', clearAll);
     document.getElementById('btn-export').addEventListener('click', exportPDF);
+
+    // 食材詳情 modal close handlers
+    document.getElementById('food-modal-close').addEventListener('click', hideFoodDetail);
+    document.getElementById('food-modal-backdrop').addEventListener('click', hideFoodDetail);
+    document.addEventListener('keydown', e => {
+      if (e.key === 'Escape') hideFoodDetail();
+    });
 
     // 重新整理按鈕 — 強制抓最新版本 (清 cache + reload)
     const refreshBtn = document.getElementById('btn-refresh');
