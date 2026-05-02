@@ -123,6 +123,30 @@ function renderActivityOptions() {
 // ============================================================
 // Render: 食材選擇 chip 按鈕
 // ============================================================
+// 分類 → CSS 顏色 var
+const CAT_COLOR = {
+  '補充品': 'var(--cat-supplement)',
+  '補充品(顆)': 'var(--cat-supplement-cap)',
+  '補充品(包)': 'var(--cat-supplement-pkt)',
+  '補充品(匙)': 'var(--cat-supplement)',
+  '飼料': 'var(--cat-feed)',
+  '肉類': 'var(--cat-meat)',
+  '海鮮': 'var(--cat-seafood)',
+  '蛋類': 'var(--cat-egg)',
+  '穀物': 'var(--cat-grain)',
+  '澱粉類': 'var(--cat-grain)',
+  '根莖類': 'var(--cat-grain)',
+  '蔬菜': 'var(--cat-veg)',
+  '蔬菜類': 'var(--cat-veg)',
+  '蔬果': 'var(--cat-veg)',
+  '水果': 'var(--cat-fruit)',
+  '水果類': 'var(--cat-fruit)',
+  '油脂': 'var(--cat-oil)',
+  '油脂類': 'var(--cat-oil)',
+  '調味': 'var(--cat-condiment)',
+  '種子': 'var(--cat-seed)',
+};
+
 function renderIngredientPicker() {
   const wrap = document.getElementById('ingredient-picker');
   wrap.innerHTML = '';
@@ -134,13 +158,16 @@ function renderIngredientPicker() {
       el('div', { class: 'picker-chips' },
         foods.map(food => {
           const isActive = !!STATE.recipe[food.name];
+          // 用食材自己的 category 對映顏色 (補充品(顆)/補充品(包) 各自獨立色)
+          const color = CAT_COLOR[food.category] || 'var(--cat-default)';
           return el('button', {
             type: 'button',
             class: 'chip' + (isActive ? ' active' : ''),
+            style: `--cat-color: ${color}`,
             'data-name': food.name,
             onclick: () => toggleFood(food)
           }, [
-            el('span', { class: 'chip-icon' }, isActive ? '✓' : '⊕'),
+            el('span', { class: 'chip-icon' }, isActive ? '✓' : '+'),
             food.name
           ]);
         })
@@ -361,6 +388,28 @@ function calcAchievement(totals) {
   return results;
 }
 
+// 營養素 key → section (用於分組顯示)
+const NUTRIENT_SECTION = {
+  kcal: 'macro', protein: 'macro', fat: 'macro', carb: 'macro',
+  fiber: 'macro', omega6_g: 'macro', omega3_g: 'macro', epa_dha: 'macro',
+  ca_mg: 'mineral', p_mg: 'mineral', k_mg: 'mineral', na_mg: 'mineral',
+  cl_g: 'mineral', mg_mg: 'mineral', fe_mg: 'mineral', cu_mg: 'mineral',
+  zn_mg: 'mineral', mn_mg: 'mineral', iodine_ug: 'mineral', se_ug: 'mineral',
+  vita_iu: 'vitamin', vitd_iu: 'vitamin', vite_iu: 'vitamin', vitk_mg: 'vitamin',
+  b1_mg: 'vitamin', b2_mg: 'vitamin', b3_mg: 'vitamin', b5_mg: 'vitamin',
+  b6_mg: 'vitamin', b9_ug: 'vitamin', b12_ug: 'vitamin', choline_mg: 'vitamin',
+  arg_g: 'aa', his_g: 'aa', ile_g: 'aa', leu_g: 'aa', lys_g: 'aa',
+  met_g: 'aa', cys_g: 'aa', phe_g: 'aa', tyr_g: 'aa', thr_g: 'aa',
+  trp_g: 'aa', val_g: 'aa', met_cys_g: 'aa', phe_tyr_g: 'aa',
+};
+const SECTION_LABELS = {
+  macro: '巨量營養素',
+  mineral: '礦物質',
+  vitamin: '維生素',
+  aa: '必需胺基酸',
+  other: '參考用',
+};
+
 function renderDashboard(achievement) {
   const wrap = document.getElementById('dashboard');
   const summary = document.getElementById('dashboard-summary');
@@ -372,8 +421,21 @@ function renderDashboard(achievement) {
     return;
   }
 
-  let cntOk = 0, cntWarn = 0, cntBad = 0;
+  // 依 section 分組
+  const sectionOrder = ['macro', 'mineral', 'vitamin', 'aa', 'other'];
+  const grouped = { macro: [], mineral: [], vitamin: [], aa: [], other: [] };
   for (const r of achievement) {
+    const sec = NUTRIENT_SECTION[r.key] || 'other';
+    grouped[sec].push(r);
+  }
+
+  let cntOk = 0, cntWarn = 0, cntBad = 0;
+  for (const sec of sectionOrder) {
+    const items = grouped[sec];
+    if (items.length === 0) continue;
+    // Section header
+    wrap.appendChild(el('div', { class: 'dash-section-header ' + sec }, SECTION_LABELS[sec]));
+    for (const r of items) {
     const barWidth = r.pct != null
       ? Math.min(100, Math.max(2, r.pct * 100))
       : 0;
@@ -416,7 +478,8 @@ function renderDashboard(achievement) {
     if (r.status === 'ok') cntOk++;
     else if (r.status === 'warn') cntWarn++;
     else if (r.status === 'bad') cntBad++;
-  }
+  } // end items loop
+  } // end sec loop
 
   document.getElementById('cnt-ok').textContent = cntOk;
   document.getElementById('cnt-warn').textContent = cntWarn;

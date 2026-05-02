@@ -1,18 +1,23 @@
 /* ============================================================
    狗狗鮮食營養計算器 v2 — styles.css
-   沿用舊版色系 (綠色卡片) + 暗色模式 + 手機優先 RWD
+   主色系：深藍 #1F4E79 (Excel xlsx 美化色系一致)
+   食材分類：依類別不同顏色外框
    ============================================================ */
 
 :root {
+  /* 主色系 */
   --bg: #f5f5f0;
   --card: #ffffff;
   --text: #222;
   --text-dim: #666;
   --border: #e0ddd4;
-  --accent: #2f6d4f;
-  --accent-dark: #1a3a2e;
-  --accent-light: #e4f0e9;
 
+  /* 主色 — 深藍 (Excel 美化色系) */
+  --accent: #1F4E79;
+  --accent-dark: #15385A;
+  --accent-light: #DDEBF7;
+
+  /* 狀態色 */
   --ok-bg: #e3f3e5;
   --ok-border: #b5dcb9;
   --ok-text: #1f5a2a;
@@ -29,13 +34,37 @@
   --ref-border: #d8d3c4;
   --ref-text: #5f5f5f;
 
-  --chip: #eceae2;
-  --chip-active: #2f6d4f;
-  --chip-active-text: #ffffff;
-
+  /* 輸入欄 */
   --input: #fafaf7;
-  --shadow: 0 1px 3px rgba(0,0,0,.06);
+  --input-highlight: #FFF8E7;
 
+  /* Section header colors (跟 xlsx 美化儀表板 section 一致) */
+  --section-macro: #5B9BD5;       /* 巨量營養素 — 藍 */
+  --section-mineral: #ED7D31;     /* 礦物質 — 橘 */
+  --section-vitamin: #FFC000;     /* 維生素 — 金 */
+  --section-aa: #C00000;          /* 胺基酸 — 暗紅 */
+  --section-other: #A6A6A6;       /* 參考用 — 灰 */
+  --section-summary: #70AD47;     /* 摘要 — 綠 */
+  --section-dm: #ED7D31;          /* DM 分析 — 橘 */
+  --section-ratio: #FFC000;       /* 比例分析 — 金 */
+
+  /* 食材分類色 */
+  --cat-supplement: #7E57C2;       /* 補充品 — 紫 */
+  --cat-supplement-cap: #FF7043;   /* 補充品(顆) — 橙 */
+  --cat-supplement-pkt: #26A69A;   /* 補充品(包) — 藍綠 */
+  --cat-feed: #1F4E79;             /* 飼料 — 深藍 */
+  --cat-meat: #E53935;             /* 肉類 — 紅 */
+  --cat-seafood: #29B6F6;          /* 海鮮 — 藍 */
+  --cat-egg: #FFB300;              /* 蛋類 — 金黃 */
+  --cat-grain: #8D6E63;            /* 穀物/澱粉/根莖 — 棕 */
+  --cat-veg: #43A047;              /* 蔬菜/蔬果 — 綠 */
+  --cat-fruit: #EC407A;            /* 水果 — 紅粉 */
+  --cat-oil: #689F38;              /* 油脂 — 橄欖綠 */
+  --cat-condiment: #757575;        /* 調味 — 灰 */
+  --cat-seed: #6D4C41;             /* 種子 — 深棕 */
+  --cat-default: #607D8B;          /* 其他 — 藍灰 */
+
+  --shadow: 0 1px 3px rgba(0,0,0,.06);
   --radius: 10px;
   --radius-sm: 6px;
 }
@@ -47,9 +76,10 @@
     --text: #e8e8e4;
     --text-dim: #9aa0a0;
     --border: #2d363a;
-    --accent: #5bae87;
-    --accent-dark: #2f6d4f;
-    --accent-light: #20342b;
+
+    --accent: #5B9BD5;
+    --accent-dark: #1F4E79;
+    --accent-light: #1a2c3e;
 
     --ok-bg: #1e3a26;
     --ok-border: #3a6b47;
@@ -67,11 +97,9 @@
     --ref-border: #3a3a35;
     --ref-text: #aaa8a0;
 
-    --chip: #2d363a;
-    --chip-active: #5bae87;
-    --chip-active-text: #12181a;
-
     --input: #232b30;
+    --input-highlight: #3a3520;
+
     --shadow: 0 1px 3px rgba(0,0,0,.3);
   }
 }
@@ -83,7 +111,7 @@ html, body {
   padding: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
+  font-family: "PingFang TC", "Heiti TC", "Microsoft JhengHei", "Noto Sans TC", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
@@ -91,17 +119,18 @@ html, body {
 }
 
 /* ============================================================
-   Header
+   Header — 深藍主色
    ============================================================ */
 .header {
-  background: var(--accent-dark);
+  background: var(--accent);
+  background: linear-gradient(135deg, #1F4E79 0%, #15385A 100%);
   color: white;
-  padding: 14px 16px calc(14px + env(safe-area-inset-top));
+  padding: 14px 16px;
   padding-top: calc(14px + env(safe-area-inset-top));
   display: flex;
   align-items: center;
   gap: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,.1);
+  box-shadow: 0 2px 6px rgba(0,0,0,.12);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -112,6 +141,7 @@ html, body {
   font-size: 17px;
   font-weight: 600;
   flex: 1;
+  letter-spacing: 0.5px;
 }
 
 .header .version {
@@ -138,7 +168,7 @@ html, body {
   padding: 0;
   margin-left: 4px;
   transition: all 0.15s;
-  font-family: -apple-system, sans-serif;
+  font-family: inherit;
   line-height: 1;
   -webkit-tap-highlight-color: transparent;
 }
@@ -175,8 +205,11 @@ html, body {
 .section-title {
   margin: 0 0 8px 0;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent);
+  letter-spacing: 0.3px;
+  border-left: 4px solid var(--accent);
+  padding-left: 8px;
 }
 
 .section-header {
@@ -214,7 +247,6 @@ html, body {
   margin-bottom: 10px;
 }
 
-/* 寬螢幕 (>=480px) 才並排 */
 @media (min-width: 480px) {
   .form-grid {
     grid-template-columns: minmax(110px, 1fr) 2fr;
@@ -239,7 +271,7 @@ html, body {
   padding: 8px 10px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--input);
+  background: var(--input-highlight);
   color: var(--text);
   font-family: inherit;
   -webkit-appearance: none;
@@ -254,10 +286,11 @@ html, body {
   outline: none;
   border-color: var(--accent);
   box-shadow: 0 0 0 3px var(--accent-light);
+  background: var(--input-highlight);
 }
 
 .field select {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%23666' d='M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%231F4E79' d='M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   padding-right: 28px;
@@ -268,15 +301,16 @@ html, body {
   align-items: baseline;
   flex-wrap: wrap;
   gap: 4px;
-  padding: 8px 10px;
+  padding: 10px 12px;
   background: var(--accent-light);
   border-radius: var(--radius-sm);
   font-size: 13px;
   color: var(--text-dim);
+  border-left: 3px solid var(--accent);
 }
 
 .energy-bar .energy-label {
-  font-weight: 600;
+  font-weight: 700;
   color: var(--accent);
 }
 
@@ -297,26 +331,27 @@ html, body {
 }
 
 /* ============================================================
-   食材選擇 (chip toggle)
+   食材選擇 chip — 透明底+分類色外框
    ============================================================ */
 .ingredient-picker {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .picker-group {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
 }
 
 .picker-group-title {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 11px;
+  font-weight: 700;
   color: var(--text-dim);
   margin: 4px 0 2px 0;
-  letter-spacing: .5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
 }
 
 .picker-chips {
@@ -326,18 +361,21 @@ html, body {
 }
 
 .chip {
+  /* 預設透明底 + 分類色外框 */
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  padding: 7px 12px;
-  background: var(--chip);
-  color: var(--text);
-  border: 1px solid transparent;
-  border-radius: 18px;
+  padding: 6px 12px;
+  background: transparent;
+  color: var(--cat-color, var(--cat-default));
+  border: 2px solid var(--cat-color, var(--cat-default));
+  border-radius: 8px;
   font-size: 13px;
+  font-weight: 600;
   cursor: pointer;
   user-select: none;
   transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .chip:active {
@@ -345,23 +383,26 @@ html, body {
 }
 
 .chip:hover {
-  border-color: var(--accent);
+  background: var(--cat-color, var(--cat-default));
+  color: white;
+  opacity: 0.85;
 }
 
 .chip.active {
-  background: var(--chip-active);
-  color: var(--chip-active-text);
-  border-color: var(--chip-active);
-  font-weight: 500;
+  background: var(--cat-color, var(--cat-default));
+  color: white;
+  opacity: 1;
+  box-shadow: 0 2px 4px rgba(0,0,0,.12);
 }
 
 .chip .chip-icon {
-  font-size: 14px;
+  font-size: 13px;
   line-height: 1;
+  font-weight: 700;
 }
 
 /* ============================================================
-   已加入食材 (recipe list)
+   已加入食材
    ============================================================ */
 .recipe-list {
   display: flex;
@@ -374,15 +415,17 @@ html, body {
   grid-template-columns: 1fr auto auto auto;
   gap: 8px;
   align-items: center;
-  padding: 8px 10px;
+  padding: 9px 10px;
   background: var(--accent-light);
   border-radius: var(--radius-sm);
   border: 1px solid var(--border);
+  border-left: 3px solid var(--accent);
 }
 
 .recipe-row .recipe-name {
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .recipe-row .recipe-portion {
@@ -391,11 +434,12 @@ html, body {
   font-size: 14px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  background: var(--input);
+  background: var(--input-highlight);
   color: var(--text);
   text-align: right;
   -webkit-appearance: none;
   appearance: none;
+  font-weight: 600;
 }
 
 .recipe-row .recipe-portion:focus {
@@ -440,6 +484,7 @@ html, body {
   font-size: 13px;
   color: var(--text-dim);
   flex-wrap: wrap;
+  border-left: 3px solid var(--accent);
 }
 
 .recipe-summary b {
@@ -474,10 +519,11 @@ html, body {
 .dm-row.dm-header {
   font-size: 11px;
   color: var(--text-dim);
-  font-weight: 600;
+  font-weight: 700;
   text-align: right;
   padding: 4px 0;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 2px solid var(--section-dm);
+  letter-spacing: 1px;
 }
 
 .dm-row.dm-header > span:first-child {
@@ -485,16 +531,22 @@ html, body {
 }
 
 .dm-row.dm-meta {
-  background: var(--accent-light);
+  background: #FFF8E7;
   padding: 7px 8px;
   margin: 0 -8px;
   border-radius: var(--radius-sm);
   border-bottom: none;
 }
 
+@media (prefers-color-scheme: dark) {
+  .dm-row.dm-meta {
+    background: #2d2914;
+  }
+}
+
 .dm-row.dm-em .dm-amount {
   font-weight: 700;
-  color: var(--accent);
+  color: var(--section-dm);
 }
 
 .dm-row .dm-name {
@@ -525,8 +577,8 @@ html, body {
 }
 
 .dm-row .dm-pct {
-  color: var(--accent);
-  font-weight: 600;
+  color: var(--section-dm);
+  font-weight: 700;
 }
 
 /* ============================================================
@@ -535,8 +587,29 @@ html, body {
 .dashboard {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 0;
 }
+
+.dash-section-header {
+  font-size: 11px;
+  font-weight: 700;
+  color: white;
+  padding: 4px 10px;
+  margin: 8px -10px 4px -10px;
+  border-radius: var(--radius-sm);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.dash-section-header:first-child {
+  margin-top: 0;
+}
+
+.dash-section-header.macro { background: var(--section-macro); }
+.dash-section-header.mineral { background: var(--section-mineral); }
+.dash-section-header.vitamin { background: var(--section-vitamin); color: #333; }
+.dash-section-header.aa { background: var(--section-aa); }
+.dash-section-header.other { background: var(--section-other); }
 
 .dash-row {
   padding: 8px 0;
@@ -565,7 +638,7 @@ html, body {
 }
 
 .dash-row .dash-name {
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .dash-row .dash-name .dash-unit {
@@ -593,7 +666,7 @@ html, body {
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .dash-row.status-ok .dash-bar { background: var(--ok-text); }
@@ -613,6 +686,8 @@ html, body {
   gap: 6px;
   margin-top: 12px;
   flex-wrap: wrap;
+  padding-top: 10px;
+  border-top: 2px solid var(--accent-light);
 }
 
 .badge {
@@ -623,6 +698,7 @@ html, body {
   padding: 4px 10px;
   border-radius: 12px;
   border: 1px solid;
+  font-weight: 600;
 }
 
 .badge b {
@@ -662,7 +738,7 @@ html, body {
 
 .ratio-row .ratio-name {
   color: var(--text);
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .ratio-row .ratio-ideal {
@@ -674,7 +750,7 @@ html, body {
 
 .ratio-row .ratio-value {
   font-variant-numeric: tabular-nums;
-  font-weight: 600;
+  font-weight: 700;
   font-family: ui-monospace, SF Mono, Menlo, Consolas, monospace;
   font-size: 14px;
 }
@@ -701,12 +777,6 @@ html, body {
   margin-right: 2px;
 }
 
-/* OK rows: subtle accent */
-.ratio-row.status-ok {
-  /* default styling */
-}
-
-/* Warning rows: subtle bg highlight */
 .ratio-row.status-warn .ratio-name {
   color: var(--warn-text);
 }
@@ -721,7 +791,7 @@ html, body {
   gap: 6px;
   padding: 9px 16px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
   font-family: inherit;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -741,11 +811,13 @@ html, body {
   background: var(--accent);
   color: white;
   border-color: var(--accent);
-  font-weight: 600;
+  font-weight: 700;
+  box-shadow: 0 2px 6px rgba(31,78,121,.25);
 }
 
 .btn-primary:hover {
   background: var(--accent-dark);
+  box-shadow: 0 3px 8px rgba(31,78,121,.35);
 }
 
 .btn-danger {
@@ -783,11 +855,23 @@ html, body {
   font-size: 11px;
   color: var(--text-dim);
   margin-top: 16px;
-  padding: 0 8px;
+  padding: 12px 8px;
+  border-top: 1px solid var(--border);
 }
 
 .footer p {
   margin: 4px 0;
+}
+
+.footer .version-tag {
+  display: inline-block;
+  background: var(--accent-light);
+  color: var(--accent);
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 10px;
+  margin-top: 4px;
 }
 
 .footer .disclaimer {
@@ -798,15 +882,10 @@ html, body {
 }
 
 /* ============================================================
-   Print-only elements (hidden on screen)
+   Print-only
    ============================================================ */
-.print-only {
-  display: none;
-}
+.print-only { display: none; }
 
-/* ============================================================
-   Print
-   ============================================================ */
 @media print {
   @page {
     size: A4 portrait;
@@ -821,7 +900,6 @@ html, body {
     print-color-adjust: exact;
   }
 
-  /* Hide screen-only elements */
   .header,
   .actions,
   .btn,
@@ -837,16 +915,15 @@ html, body {
 
   .print-only { display: block; }
 
-  /* Print header */
   .print-header {
-    border-bottom: 2px solid #1a3a2e;
+    border-bottom: 2px solid #1F4E79;
     padding-bottom: 8pt;
     margin-bottom: 12pt;
   }
 
   .print-title {
     font-size: 16pt;
-    color: #1a3a2e;
+    color: #1F4E79;
     margin: 0 0 6pt 0;
   }
 
@@ -859,10 +936,9 @@ html, body {
   }
 
   .print-meta b {
-    color: #1a3a2e;
+    color: #1F4E79;
   }
 
-  /* Compact cards for print */
   .container {
     padding: 0;
     max-width: none;
@@ -878,21 +954,16 @@ html, body {
   }
 
   .section-title {
-    color: #1a3a2e !important;
+    color: #1F4E79 !important;
     font-size: 11pt;
     margin: 0 0 4pt 0;
   }
 
-  /* Recipe rows in print: show as table-like layout */
   .recipe-row {
     background: white !important;
     border: 1px solid #ccc !important;
     padding: 4pt 8pt !important;
     grid-template-columns: 1fr auto auto !important;
-  }
-
-  .recipe-row .recipe-name {
-    font-size: 10pt;
   }
 
   .recipe-row .recipe-portion {
@@ -901,25 +972,17 @@ html, body {
     padding: 0 !important;
     width: auto !important;
     font-weight: 600;
-    color: #1a3a2e !important;
+    color: #1F4E79 !important;
     font-size: 10pt;
   }
 
-  /* Recipe summary visible */
   .recipe-summary {
     background: #f5f5f0 !important;
     page-break-after: avoid;
   }
 
-  /* Dashboard rows */
   .dash-row {
-    grid-template-columns: 100px 1fr 50px !important;
-    font-size: 9pt;
     page-break-inside: avoid;
-  }
-
-  .dash-bar-wrap {
-    background: #eee !important;
   }
 
   .dash-row.status-ok .dash-bar { background: #1f5a2a !important; }
@@ -927,26 +990,21 @@ html, body {
   .dash-row.status-bad .dash-bar { background: #8a2e24 !important; }
   .dash-row.status-ref .dash-bar { background: #999 !important; }
 
-  /* Badges */
   .badge {
     border: 1px solid #888 !important;
     background: white !important;
     color: black !important;
   }
 
-  /* Ratios */
   .ratio-row {
-    font-size: 9pt;
     page-break-inside: avoid;
   }
 
-  /* Energy bar */
   .energy-bar {
-    background: #e4f0e9 !important;
-    color: #1a3a2e !important;
+    background: #DDEBF7 !important;
+    color: #1F4E79 !important;
   }
 
-  /* Footer */
   .footer {
     font-size: 8pt;
     color: #555;
@@ -956,11 +1014,8 @@ html, body {
   }
 }
 
-/* ============================================================
-   Tablet/Desktop overrides
-   ============================================================ */
 @media (min-width: 700px) {
   .container { padding: 20px; }
   .card { padding: 20px; }
-  .dash-row { grid-template-columns: 140px 1fr 60px; font-size: 14px; }
+  .dash-row-main { grid-template-columns: 140px 1fr 60px; font-size: 14px; }
 }

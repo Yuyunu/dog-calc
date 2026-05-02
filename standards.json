@@ -264,7 +264,7 @@
   },
   {
    "key": "arg_g",
-   "name": "精胺酸",
+   "name": "精胺酸 (Arg)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.28,
    "nrc_per_1000kcal": 0.88,
@@ -272,7 +272,7 @@
   },
   {
    "key": "his_g",
-   "name": "組胺酸",
+   "name": "組胺酸 (His)",
    "unit": "g",
    "aafco_min_per_1000kcal": 0.48,
    "nrc_per_1000kcal": 0.48,
@@ -280,7 +280,7 @@
   },
   {
    "key": "ile_g",
-   "name": "異白胺酸",
+   "name": "異白胺酸 (Ile)",
    "unit": "g",
    "aafco_min_per_1000kcal": 0.95,
    "nrc_per_1000kcal": 0.95,
@@ -288,7 +288,7 @@
   },
   {
    "key": "leu_g",
-   "name": "白胺酸",
+   "name": "白胺酸 (Leu)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.7,
    "nrc_per_1000kcal": 1.7,
@@ -296,7 +296,7 @@
   },
   {
    "key": "lys_g",
-   "name": "離胺酸",
+   "name": "離胺酸 (Lys)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.58,
    "nrc_per_1000kcal": 0.88,
@@ -304,7 +304,7 @@
   },
   {
    "key": "met_g",
-   "name": "甲硫胺酸",
+   "name": "甲硫胺酸 (Met)",
    "unit": "g",
    "aafco_min_per_1000kcal": 0.83,
    "nrc_per_1000kcal": 0.83,
@@ -312,7 +312,7 @@
   },
   {
    "key": "met_cys_g",
-   "name": "甲硫胺酸+半胱胺酸",
+   "name": "甲硫胺酸+半胱胺酸 (Met+Cys)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.63,
    "nrc_per_1000kcal": 1.63,
@@ -320,7 +320,7 @@
   },
   {
    "key": "phe_g",
-   "name": "苯丙胺酸",
+   "name": "苯丙胺酸 (Phe)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.13,
    "nrc_per_1000kcal": 1.13,
@@ -328,7 +328,7 @@
   },
   {
    "key": "phe_tyr_g",
-   "name": "苯丙胺酸+酪胺酸",
+   "name": "苯丙胺酸+酪胺酸 (Phe+Tyr)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.85,
    "nrc_per_1000kcal": 1.85,
@@ -336,7 +336,7 @@
   },
   {
    "key": "thr_g",
-   "name": "蘇胺酸",
+   "name": "蘇胺酸 (Thr)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.08,
    "nrc_per_1000kcal": 1.08,
@@ -344,7 +344,7 @@
   },
   {
    "key": "trp_g",
-   "name": "色胺酸",
+   "name": "色胺酸 (Trp)",
    "unit": "g",
    "aafco_min_per_1000kcal": 0.4,
    "nrc_per_1000kcal": 0.34,
@@ -352,7 +352,7 @@
   },
   {
    "key": "val_g",
-   "name": "纈胺酸",
+   "name": "纈胺酸 (Val)",
    "unit": "g",
    "aafco_min_per_1000kcal": 1.23,
    "nrc_per_1000kcal": 1.23,
@@ -441,7 +441,7 @@
   },
   {
    "key": "metcys_lys",
-   "name": "Met+Cys : Lys",
+   "name": "(甲硫胺酸+半胱胺酸) / 離胺酸 (Met+Cys/Lys)",
    "numerator": "met_cys_g",
    "denominator": "lys_g",
    "ideal_min": 0.5,
@@ -452,7 +452,7 @@
   },
   {
    "key": "lys_metcys",
-   "name": "Lys : (Met+Cys)",
+   "name": "離胺酸 / (甲硫胺酸+半胱胺酸) (Lys/Met+Cys)",
    "numerator": "lys_g",
    "denominator": "met_cys_g",
    "ideal_min": 1.0,
@@ -463,7 +463,7 @@
   },
   {
    "key": "lys_arg",
-   "name": "Lys : Arg",
+   "name": "離胺酸 / 精胺酸 (Lys/Arg)",
    "numerator": "lys_g",
    "denominator": "arg_g",
    "ideal_label": "1 ~ 2",
@@ -474,7 +474,7 @@
   },
   {
    "key": "metcys_phetyr",
-   "name": "(Met+Cys) : (Phe+Tyr)",
+   "name": "(甲硫胺酸+半胱胺酸) / (苯丙胺酸+酪胺酸) (Met+Cys/Phe+Tyr)",
    "numerator": "met_cys_g",
    "denominator": "phe_tyr_g",
    "ideal_min": 0.4,
@@ -485,7 +485,7 @@
   },
   {
    "key": "leu_ile",
-   "name": "Leu : Ile",
+   "name": "白胺酸 / 異白胺酸 (Leu/Ile)",
    "numerator": "leu_g",
    "denominator": "ile_g",
    "ideal_label": "1.5 ~ 2.5",
@@ -496,7 +496,7 @@
   },
   {
    "key": "met_cys",
-   "name": "Met : Cys",
+   "name": "甲硫胺酸 / 半胱胺酸 (Met/Cys)",
    "numerator": "met_g",
    "denominator": "cys_g",
    "ideal_label": "1 ~ 2",
