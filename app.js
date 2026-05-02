@@ -347,6 +347,45 @@ function calcAchievement(totals) {
 
     if (provided == null) provided = 0;
 
+    // === 牛磺酸特殊處理 (依體重 mg/kg 判斷, 不用 per_1000kcal) ===
+    if (std.is_taurine) {
+      const taurine_mg = (provided || 0) * 1000;  // food data is g, display mg
+      const w = STATE.weight || 11.5;
+      const cardiacMin = (std.cardiac_min_per_kg || 50) * w;
+      const cardiacMax = (std.cardiac_max_per_kg || 100) * w;
+      const adultMin = 8.7 * w;  // ≈100 mg total for 11.5kg
+      const per_kg = w > 0 ? taurine_mg / w : 0;
+      let status, statusLabel;
+      if (per_kg < 8.7) {
+        status = 'warn'; statusLabel = '不足';
+      } else if (per_kg < 50) {
+        status = 'warn'; statusLabel = '一般成犬足夠 / 心臟風險不足';
+      } else if (per_kg <= 100) {
+        status = 'ok'; statusLabel = '心臟預防範圍';
+      } else if (per_kg <= 200) {
+        status = 'ok'; statusLabel = '治療範圍';
+      } else {
+        status = 'warn'; statusLabel = '過量';
+      }
+      results.push({
+        key: std.key,
+        name: std.name,
+        unit: std.unit || 'mg',
+        provided: taurine_mg,
+        dailyMin: cardiacMin,
+        dailyRec: (cardiacMin + cardiacMax) / 2,
+        dailyMax: cardiacMax,
+        pct: cardiacMin > 0 ? taurine_mg / cardiacMin : null,
+        status,
+        statusLabel,
+        note: std.note,
+        is_taurine: true
+      });
+      continue;
+    }
+    // === end 牛磺酸 ===
+
+
     // AAFCO 沒給最低值時，用 NRC 建議值替代 (例如 EPA+DHA AAFCO 沒設、NRC 0.13g)
     const aafcoMin = std.aafco_min_per_1000kcal;
     const nrcRec = std.nrc_per_1000kcal;
@@ -401,13 +440,14 @@ const NUTRIENT_SECTION = {
   arg_g: 'aa', his_g: 'aa', ile_g: 'aa', leu_g: 'aa', lys_g: 'aa',
   met_g: 'aa', cys_g: 'aa', phe_g: 'aa', tyr_g: 'aa', thr_g: 'aa',
   trp_g: 'aa', val_g: 'aa', met_cys_g: 'aa', phe_tyr_g: 'aa',
+  taurine_g: 'other',
 };
 const SECTION_LABELS = {
   macro: '巨量營養素',
   mineral: '礦物質',
   vitamin: '維生素',
   aa: '必需胺基酸',
-  other: '參考用',
+  other: '參考用 / 心臟保健',
 };
 
 function renderDashboard(achievement) {
@@ -449,7 +489,10 @@ function renderDashboard(achievement) {
       return v.toFixed(3);
     };
     let rangeText = '';
-    if (r.dailyMin != null && r.dailyMax != null) {
+    if (r.is_taurine) {
+      // 牛磺酸特殊顯示: 心臟預防區間 (mg/kg)
+      rangeText = `心臟預防 ${fmtVal(r.dailyMin)} ~ ${fmtVal(r.dailyMax)} (50-100 mg/kg)`;
+    } else if (r.dailyMin != null && r.dailyMax != null) {
       rangeText = `建議 ${fmtVal(r.dailyMin)} ~ ${fmtVal(r.dailyMax)}`;
     } else if (r.dailyMin != null) {
       rangeText = `最低 ${fmtVal(r.dailyMin)}`;
@@ -471,7 +514,12 @@ function renderDashboard(achievement) {
         ),
         el('div', { class: 'dash-pct' }, fmtPct(r.pct))
       ]),
-      el('div', { class: 'dash-detail' }, `${providedText} / ${rangeText}`)
+      el('div', { class: 'dash-detail' },
+        r.is_taurine
+          ? `${providedText} · ${rangeText}`
+          + (r.statusLabel ? ` · ${r.statusLabel}` : '')
+          : `${providedText} / ${rangeText}`
+      )
     ]);
     wrap.appendChild(row);
 

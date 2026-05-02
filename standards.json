@@ -357,6 +357,19 @@
    "aafco_min_per_1000kcal": 1.23,
    "nrc_per_1000kcal": 1.23,
    "aafco_max_per_1000kcal": null
+  },
+  {
+   "key": "taurine_g",
+   "name": "牛磺酸 (Taurine)",
+   "unit": "mg",
+   "aafco_min_per_1000kcal": null,
+   "nrc_per_1000kcal": null,
+   "aafco_max_per_1000kcal": null,
+   "is_taurine": true,
+   "category": "other",
+   "cardiac_min_per_kg": 50,
+   "cardiac_max_per_kg": 100,
+   "note": "AAFCO 無成犬法定需求；ACVIM B1-B2 心臟風險犬預防性建議 50-100 mg/kg/天"
   }
  ],
  "ratios": [
