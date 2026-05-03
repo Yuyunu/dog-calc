@@ -138,10 +138,47 @@ html, body {
 
 .header h1 {
   margin: 0;
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 600;
-  flex: 1;
   letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.tab-nav {
+  display: flex;
+  gap: 4px;
+  flex: 1;
+  margin: 0 6px;
+  justify-content: center;
+}
+
+.tab-btn {
+  background: rgba(255,255,255,.1);
+  color: rgba(255,255,255,.85);
+  border: 1px solid transparent;
+  border-radius: 6px;
+  padding: 5px 10px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+  white-space: nowrap;
+}
+
+.tab-btn.active {
+  background: rgba(255,255,255,.25);
+  color: white;
+  border-color: rgba(255,255,255,.3);
+}
+
+.tab-btn:hover:not(.active) {
+  background: rgba(255,255,255,.18);
+}
+
+@media (min-width: 480px) {
+  .header h1 { font-size: 17px; }
+  .tab-btn { font-size: 13px; padding: 6px 12px; }
 }
 
 .header .version {
@@ -1137,6 +1174,393 @@ html, body {
 .detail-source-note .src-label {
   color: var(--accent);
   font-weight: 700;
+}
+
+/* ============================================================
+   日誌頁面 — 月曆 / 事件 / Modal
+   ============================================================ */
+
+/* btn-secondary */
+.btn-secondary {
+  background: var(--accent-light);
+  color: var(--accent);
+  border-color: var(--accent);
+  font-weight: 600;
+}
+.btn-secondary:hover {
+  background: var(--accent);
+  color: white;
+}
+
+/* 月曆 nav */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.cal-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--accent);
+}
+.cal-nav-btn {
+  background: var(--accent-light);
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: inherit;
+  line-height: 1;
+}
+.cal-nav-btn:hover { background: var(--accent); color: white; }
+
+/* 月曆 weekday header */
+.cal-weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  margin-bottom: 2px;
+  font-size: 11px;
+  text-align: center;
+  color: var(--text-dim);
+  font-weight: 700;
+  padding: 4px 0;
+  background: var(--accent-light);
+  border-radius: 6px;
+}
+
+/* 月曆 grid */
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.cal-day {
+  position: relative;
+  aspect-ratio: 1;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  font-size: 11px;
+  transition: all 0.1s;
+  -webkit-tap-highlight-color: transparent;
+  overflow: hidden;
+}
+.cal-day:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.cal-day.other-month {
+  background: transparent;
+  border-color: transparent;
+  color: var(--text-dim);
+  opacity: 0.4;
+  cursor: default;
+}
+.cal-day.today {
+  border: 2px solid var(--accent);
+  font-weight: 700;
+}
+.cal-day .cal-day-num {
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+.cal-day .cal-day-events {
+  margin-top: auto;
+  text-align: right;
+  font-size: 10px;
+  line-height: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 食譜 highlight (顏色 strip 在 day cell top) */
+.cal-day .cal-day-feed {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  border-radius: 6px 6px 0 0;
+}
+
+.feed-color-0 { background: #FF7043; }
+.feed-color-1 { background: #5B9BD5; }
+.feed-color-2 { background: #43A047; }
+.feed-color-3 { background: #C00000; }
+.feed-color-4 { background: #7E57C2; }
+.feed-color-5 { background: #FFB300; }
+.feed-color-6 { background: #26A69A; }
+.feed-color-7 { background: #EC407A; }
+
+/* 月曆 legend */
+.cal-legend {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 10px;
+  color: var(--text-dim);
+}
+.cal-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.cal-legend-dot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--border);
+}
+.cal-legend-dot.today { background: white; border: 2px solid var(--accent); }
+.cal-legend-dot.has-feed { background: #FF7043; }
+.cal-legend-dot.has-event { background: var(--warn-text); }
+
+/* 食譜歷史列表 */
+.recipe-history { display: flex; flex-direction: column; gap: 8px; }
+.recipe-history-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  background: var(--accent-light);
+  border-radius: 6px;
+  border-left: 4px solid var(--accent);
+}
+.recipe-history-item .feed-color-strip {
+  width: 6px;
+  height: 36px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.recipe-history-item .rh-info {
+  flex: 1;
+  min-width: 0;
+}
+.recipe-history-item .rh-name {
+  font-weight: 700;
+  color: var(--text);
+  font-size: 14px;
+}
+.recipe-history-item .rh-period {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.recipe-history-item .rh-actions {
+  display: flex;
+  gap: 4px;
+}
+.recipe-history-item .btn-mini {
+  padding: 4px 8px;
+  font-size: 11px;
+}
+
+/* Diary modal form */
+.diary-modal { max-width: 480px; }
+.diary-form { display: flex; flex-direction: column; gap: 12px; }
+.diary-form .field input,
+.diary-form .field textarea {
+  font-family: inherit;
+  font-size: 14px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--input);
+  color: var(--text);
+  width: 100%;
+}
+.diary-form .field input:disabled {
+  background: var(--ref-bg);
+  color: var(--text-dim);
+}
+.diary-end-options {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 6px;
+  flex-wrap: wrap;
+}
+.diary-radio {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.food-modal-footer {
+  padding: 10px 16px calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  border-top: 1px solid var(--border);
+  background: var(--card);
+}
+
+/* Day detail */
+.day-detail-section {
+  margin-bottom: 14px;
+}
+.day-detail-section h4 {
+  margin: 0 0 6px 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.5px;
+}
+.day-feeding {
+  padding: 10px;
+  background: var(--accent-light);
+  border-radius: 6px;
+  border-left: 4px solid var(--accent);
+  font-size: 13px;
+}
+.day-feeding .feed-name { font-weight: 700; }
+.day-feeding .feed-period { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+
+.day-events { display: flex; flex-direction: column; gap: 6px; }
+.day-event-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 8px 10px;
+  background: var(--input);
+  border-radius: 6px;
+  border-left: 3px solid var(--warn-border);
+  font-size: 13px;
+}
+.day-event-item .ev-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+.day-event-item .ev-info { flex: 1; min-width: 0; }
+.day-event-item .ev-name { font-weight: 600; }
+.day-event-item .ev-note { font-size: 11px; color: var(--text-dim); margin-top: 2px; }
+.day-event-item .ev-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-dim);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+}
+.day-event-item .ev-delete:hover { color: var(--bad-text); }
+
+.day-add-btn { width: 100%; margin-top: 8px; }
+
+/* Event picker */
+.event-picker-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.event-cat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.event-cat-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-dim);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding-bottom: 2px;
+  border-bottom: 1px solid var(--border);
+}
+.event-chips {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 6px;
+}
+.event-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  background: var(--input);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 12.5px;
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.1s;
+}
+.event-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+.event-chip:active { transform: scale(0.97); }
+.event-chip .ec-emoji { font-size: 16px; line-height: 1; }
+
+.event-detail-form {
+  margin-top: 10px;
+  padding: 12px;
+  background: var(--accent-light);
+  border-radius: 6px;
+  border: 1px solid var(--accent);
+}
+.event-detail-form h4 {
+  margin: 0 0 8px 0;
+  color: var(--accent);
+}
+.event-detail-form .field {
+  margin-bottom: 8px;
+}
+.event-detail-form input,
+.event-detail-form textarea {
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--card);
+  color: var(--text);
+  width: 100%;
+}
+.event-detail-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+  margin-top: 10px;
+}
+
+/* 事件統計 */
+.event-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 6px;
+  font-size: 12px;
+}
+.event-stat {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  background: var(--input);
+  border-radius: 4px;
+}
+.event-stat .es-count {
+  margin-left: auto;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 /* ============================================================

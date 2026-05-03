@@ -20,8 +20,11 @@
 <!-- Header                                                       -->
 <!-- ============================================================ -->
 <header class="header">
-  <h1>🐕 狗狗鮮食營養計算器</h1>
-  <span class="version">v2</span>
+  <h1>🐕 狗狗鮮食</h1>
+  <nav class="tab-nav">
+    <button id="tab-calc" class="tab-btn active" data-page="calculator" type="button">📊 計算器</button>
+    <button id="tab-diary" class="tab-btn" data-page="diary" type="button">📔 日誌</button>
+  </nav>
   <button id="btn-refresh" class="header-btn" type="button" title="重新整理（抓最新版本）" aria-label="重新整理">
     ↻
   </button>
@@ -41,7 +44,7 @@
   </div>
 </div>
 
-<main class="container">
+<main class="container" id="page-calculator">
 
   <!-- ========================================================== -->
   <!-- 1. 狗狗基本資料                                             -->
@@ -195,17 +198,166 @@
   <!-- 6. 動作鍵                                                   -->
   <!-- ========================================================== -->
   <div class="actions">
+    <button id="btn-save-to-diary" class="btn btn-secondary" type="button">📅 加入日誌</button>
     <button id="btn-export" class="btn btn-primary" type="button">匯出 PDF</button>
   </div>
 
   <!-- Footer -->
   <footer class="footer">
     <p>資料：Final xlsx 20260501 · AAFCO 2016 / NRC / TFDA / USDA</p>
-    <p><span class="version-tag">v20260501e_美化版</span></p>
+    <p><span class="version-tag">v20260501f_日誌版</span></p>
     <p class="disclaimer">本工具僅供參考，實際鮮食配方建議諮詢獸醫師。</p>
   </footer>
 
 </main>
+
+<!-- ============================================================ -->
+<!-- 日誌頁面                                                      -->
+<!-- ============================================================ -->
+<main class="container" id="page-diary" hidden>
+  <!-- 月曆 -->
+  <section class="card">
+    <div class="cal-nav">
+      <button id="cal-prev" class="cal-nav-btn" type="button" aria-label="上個月">‹</button>
+      <h2 id="cal-month-title" class="cal-title">—</h2>
+      <button id="cal-next" class="cal-nav-btn" type="button" aria-label="下個月">›</button>
+    </div>
+    <div class="cal-weekday-row">
+      <div>日</div><div>一</div><div>二</div><div>三</div><div>四</div><div>五</div><div>六</div>
+    </div>
+    <div id="cal-grid" class="cal-grid"></div>
+    <div class="cal-legend">
+      <span class="cal-legend-item"><span class="cal-legend-dot today"></span>今天</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot has-feed"></span>有食譜</span>
+      <span class="cal-legend-item"><span class="cal-legend-dot has-event"></span>有事件</span>
+    </div>
+  </section>
+
+  <!-- 餵食食譜歷史 -->
+  <section class="card">
+    <div class="section-header">
+      <h2 class="section-title">餵食食譜紀錄</h2>
+    </div>
+    <div id="recipe-history" class="recipe-history">
+      <p class="empty-state">尚未加入任何食譜紀錄。先在計算器頁建好配方，再點「📅 加入日誌」</p>
+    </div>
+  </section>
+
+  <!-- 事件統計 -->
+  <section class="card" id="event-stats-card" hidden>
+    <h2 class="section-title">事件統計（本月）</h2>
+    <div id="event-stats" class="event-stats"></div>
+  </section>
+
+  <footer class="footer">
+    <p><span class="version-tag">日誌 v1</span> · 資料儲存於本機瀏覽器</p>
+    <p class="disclaimer">所有日誌資料保存在你的瀏覽器，清除瀏覽器資料會遺失。</p>
+  </footer>
+</main>
+
+<!-- ============================================================ -->
+<!-- 日誌：加入食譜 Modal                                          -->
+<!-- ============================================================ -->
+<div id="diary-add-modal" class="food-modal" hidden>
+  <div class="food-modal-backdrop" data-close="add"></div>
+  <div class="food-modal-content diary-modal">
+    <header class="food-modal-header">
+      <div class="food-modal-title-wrap">
+        <h3>加入食譜到日誌</h3>
+        <p class="food-modal-meta">記錄這份配方的餵食期間</p>
+      </div>
+      <button class="modal-close" type="button" data-close="add" aria-label="關閉">✕</button>
+    </header>
+    <div class="food-modal-body">
+      <div class="diary-form">
+        <div class="field">
+          <label for="diary-recipe-name">食譜名稱</label>
+          <input type="text" id="diary-recipe-name" placeholder="例：11.5kg 心臟病配方">
+        </div>
+        <div class="field">
+          <label for="diary-start-date">起始日期</label>
+          <input type="date" id="diary-start-date">
+        </div>
+        <div class="field">
+          <label>結束日期</label>
+          <div class="diary-end-options">
+            <label class="diary-radio"><input type="radio" name="end-mode" value="today" checked>今日</label>
+            <label class="diary-radio"><input type="radio" name="end-mode" value="open">持續吃中</label>
+            <label class="diary-radio"><input type="radio" name="end-mode" value="custom">指定</label>
+          </div>
+          <input type="date" id="diary-end-date" disabled>
+        </div>
+        <div class="field">
+          <label for="diary-recipe-summary">食譜摘要（自動帶入，可編輯）</label>
+          <textarea id="diary-recipe-summary" rows="4"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="food-modal-footer">
+      <button class="btn btn-secondary" type="button" data-close="add">取消</button>
+      <button id="diary-save-btn" class="btn btn-primary" type="button">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 日誌：日詳情 Modal                                            -->
+<!-- ============================================================ -->
+<div id="day-detail-modal" class="food-modal" hidden>
+  <div class="food-modal-backdrop" data-close="day"></div>
+  <div class="food-modal-content diary-modal">
+    <header class="food-modal-header">
+      <div class="food-modal-title-wrap">
+        <h3 id="day-detail-title">—</h3>
+        <p id="day-detail-weekday" class="food-modal-meta"></p>
+      </div>
+      <button class="modal-close" type="button" data-close="day" aria-label="關閉">✕</button>
+    </header>
+    <div class="food-modal-body">
+      <div id="day-detail-feeding" class="day-detail-section"></div>
+      <div id="day-detail-events" class="day-detail-section"></div>
+      <button id="day-add-event-btn" class="btn btn-primary day-add-btn" type="button">+ 新增事件</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 日誌：選擇事件類型 Modal                                       -->
+<!-- ============================================================ -->
+<div id="event-picker-modal" class="food-modal" hidden>
+  <div class="food-modal-backdrop" data-close="picker"></div>
+  <div class="food-modal-content diary-modal">
+    <header class="food-modal-header">
+      <div class="food-modal-title-wrap">
+        <h3>新增事件</h3>
+        <p id="event-picker-date" class="food-modal-meta"></p>
+      </div>
+      <button class="modal-close" type="button" data-close="picker" aria-label="關閉">✕</button>
+    </header>
+    <div class="food-modal-body">
+      <div id="event-picker-grid" class="event-picker-grid"></div>
+      <div id="event-detail-form" class="event-detail-form" hidden>
+        <h4 id="event-detail-name">事件詳情</h4>
+        <div class="field">
+          <label for="event-note">備註</label>
+          <textarea id="event-note" rows="2" placeholder="例：吃完飯 30 分鐘後吐"></textarea>
+        </div>
+        <div class="field" id="event-extra-weight" hidden>
+          <label for="event-weight">體重 (kg)</label>
+          <input type="number" id="event-weight" step="0.1" min="0" inputmode="decimal">
+        </div>
+        <div class="field" id="event-extra-medication" hidden>
+          <label for="event-medication">藥名 / 劑量</label>
+          <input type="text" id="event-medication" placeholder="例：Furosemide 12.5mg 1 顆">
+        </div>
+        <div class="event-detail-actions">
+          <button class="btn btn-secondary" type="button" id="event-cancel-btn">取消</button>
+          <button class="btn btn-primary" type="button" id="event-save-btn">儲存事件</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ============================================================ -->
 <!-- 食材詳情 Modal                                                -->
@@ -226,5 +378,6 @@
 
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="diary.js"></script>
 </body>
 </html>
