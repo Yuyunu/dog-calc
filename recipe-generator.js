@@ -331,6 +331,7 @@
     }
 
     for (const r of results) {
+      if (r.is_taurine) continue;     // 牛磺酸 status 已在上方依 mg/kg 規則設定, 不要覆蓋
       if (r.pct == null) r.status = 'ref';
       else if (r.dailyMax && r.provided > r.dailyMax) r.status = 'bad';
       else if (r.pct < 0.8) r.status = 'warn';
@@ -555,19 +556,17 @@
         }
         if (!touchedDeficit) continue;
 
-        // 超 max 懲罰: 只有當「這個食材 actually 增加了超量部分」才扣分
-        let maxPenalty = 0;
+        // 超 max 硬限制: 任何營養素超過 AAFCO max 直接 SKIP (不允許這次加)
+        // 鎖定食材已經 init 進 portions, 不會走這分支;
+        // 自動補食材若會把某營養超標 → 不能選
+        let wouldExceedMax = false;
         for (const [k, mx] of Object.entries(maxes)) {
-          const cur = getProvided(totals, k);
           const adds = getFoodNutrient(food, k) * step;
-          if (adds <= 0) continue;                        // 不增 → 不罰
-          const future = cur + adds;
-          if (future <= mx) continue;                     // 沒超 → 不罰
-          const beyondMax = Math.min(adds, future - mx); // 這次增量裡超過 max 的部分
-          const overshoot = beyondMax / mx;
-          maxPenalty += Math.min(0.8, overshoot * 1.0);
+          if (adds <= 0) continue;
+          const future = getProvided(totals, k) + adds;
+          if (future > mx) { wouldExceedMax = true; break; }
         }
-        score -= maxPenalty;
+        if (wouldExceedMax) continue;
 
         if (proteinBias && proteinBias.has(food.category)) score *= 1.25;
 
@@ -599,6 +598,30 @@
       }
     }
 
+    // === 強制納入使用者勾選的食材 (post-pass) ===
+    // 任何被勾選但 greedy 沒給份量的食材, 至少加 1 step
+    // 使用者明確選擇 → max 限制放寬到 +5% (避免微量加成被擋掉)
+    const USER_FORCE_TOLERANCE = 1.05;
+    for (const food of candidatePool) {
+      if (!userSelectedSet.has(food.name)) continue;
+      if ((portions[food.name] || 0) > 0) continue;
+      const step = stepGramsFor(food);
+      const limit = maxGramsGetter(food, kcalCap);
+      if (step > limit) continue;     // max=0 之類的情況 → 跳過
+      const totals = calcTotals(portions, foodMap);
+      const kcalAdd = (food.kcal || 0) * step;
+      if ((totals.kcal || 0) + kcalAdd > kcalCap * 1.10) continue;
+      // 強制納入仍尊重 max, 但給 5% 容忍 (使用者明確要這個食材)
+      let exceeds = false;
+      for (const [k, mx] of Object.entries(maxes)) {
+        const adds = getFoodNutrient(food, k) * step;
+        if (adds <= 0) continue;
+        if (getProvided(totals, k) + adds > mx * USER_FORCE_TOLERANCE) { exceeds = true; break; }
+      }
+      if (exceeds) continue;
+      portions[food.name] = step;
+    }
+
     // === 強制最少 post-pass ===
     // 若 greedy 結束某類仍未達 minAutoByCat, 強制找該類食材 force-add 5g
     if (minAutoByCat) {
@@ -620,6 +643,14 @@
           const step = stepGramsFor(f);
           const kcalAdd = (f.kcal || 0) * step;
           if ((totals.kcal || 0) + kcalAdd > kcalCap) continue;
+          // 不能讓 force-add 推某營養超 max
+          let exceeds = false;
+          for (const [k, mx] of Object.entries(maxes)) {
+            const adds = getFoodNutrient(f, k) * step;
+            if (adds <= 0) continue;
+            if (getProvided(totals, k) + adds > mx) { exceeds = true; break; }
+          }
+          if (exceeds) continue;
           if (kcalAdd < bestKcal) { bestKcal = kcalAdd; pick = f; }
         }
         if (!pick) break;

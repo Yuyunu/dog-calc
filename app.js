@@ -423,6 +423,7 @@ function calcAchievement(totals) {
 
   // Determine status
   for (const r of results) {
+    if (r.is_taurine) continue;     // 牛磺酸 status 已上方依 mg/kg 規則設定, 不覆蓋
     if (r.pct == null) {
       r.status = 'ref';
     } else if (r.dailyMax && r.provided > r.dailyMax) {
