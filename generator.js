@@ -347,6 +347,145 @@
     return v.toFixed(3);
   }
 
+  // ============================================================
+  // DM (乾物質) 分析 — 跟計算器頁同樣
+  // ============================================================
+  function renderDMSection(totals) {
+    const total = totals._totalGrams || 0;
+    const water = totals.water_g || 0;
+    const dry = Math.max(0, total - water);
+    const protein = totals.protein || 0;
+    const fat = totals.fat || 0;
+    const carb = totals.carb || 0;
+    const fiber = totals.fiber || 0;
+
+    const fmtG = v => fmtNutVal(v) + ' g';
+    const fmtPctDM = v => dry > 0 ? (v / dry * 100).toFixed(1) + '%' : '—';
+
+    const rows = [
+      el('div', { class: 'dm-row dm-header' }, [
+        el('span', {}, '項目'), el('span', {}, '總量'), el('span', {}, '佔乾物比')
+      ]),
+      el('div', { class: 'dm-row dm-meta' }, [
+        el('span', { class: 'dm-name' }, '總食物重量'),
+        el('span', { class: 'dm-amount' }, fmtG(total)),
+        el('span', {}, '')
+      ]),
+      el('div', { class: 'dm-row dm-meta' }, [
+        el('span', { class: 'dm-name' }, '總水分'),
+        el('span', { class: 'dm-amount' }, fmtG(water)),
+        el('span', {}, '')
+      ]),
+      el('div', { class: 'dm-row dm-meta dm-em' }, [
+        el('span', { class: 'dm-name' }, '乾物質重量'),
+        el('span', { class: 'dm-amount' }, fmtG(dry)),
+        el('span', {}, '')
+      ]),
+      el('div', { class: 'dm-row' }, [
+        el('span', { class: 'dm-name' }, '蛋白質'),
+        el('span', { class: 'dm-amount' }, fmtG(protein)),
+        el('span', { class: 'dm-pct' }, fmtPctDM(protein))
+      ]),
+      el('div', { class: 'dm-row' }, [
+        el('span', { class: 'dm-name' }, '脂肪'),
+        el('span', { class: 'dm-amount' }, fmtG(fat)),
+        el('span', { class: 'dm-pct' }, fmtPctDM(fat))
+      ]),
+      el('div', { class: 'dm-row' }, [
+        el('span', { class: 'dm-name' }, '碳水化合物'),
+        el('span', { class: 'dm-amount' }, fmtG(carb)),
+        el('span', { class: 'dm-pct' }, fmtPctDM(carb))
+      ]),
+      el('div', { class: 'dm-row' }, [
+        el('span', { class: 'dm-name' }, '膳食纖維'),
+        el('span', { class: 'dm-amount' }, fmtG(fiber)),
+        el('span', { class: 'dm-pct' }, fmtPctDM(fiber))
+      ]),
+    ];
+
+    return el('div', { class: 'gen-full-section' }, [
+      el('div', { class: 'gen-full-section-title' }, '乾物質基礎分析'),
+      el('p', { class: 'hint', style: 'margin: 0 0 6px 0; font-size: 11px;' }, '乾物質 = 總食物 − 水分'),
+      el('div', { class: 'dm-grid' }, rows)
+    ]);
+  }
+
+  // ============================================================
+  // 比例分析 — 跟計算器頁同樣
+  // ============================================================
+  function getTotalRatio(totals, key) {
+    if (key === 'met_cys_g') return (totals.met_g || 0) + (totals.cys_g || 0);
+    if (key === 'phe_tyr_g') return (totals.phe_g || 0) + (totals.tyr_g || 0);
+    return totals[key] || 0;
+  }
+
+  function calcRatiosLocal(totals) {
+    const results = [];
+    for (const r of STATE.standards.ratios) {
+      const num = getTotalRatio(totals, r.numerator);
+      const den = getTotalRatio(totals, r.denominator);
+      let value;
+      if (den === 0) value = null;
+      else if (r.scale) value = num / den * r.scale;
+      else value = num / den;
+      let status = 'ref';
+      let warning = '';
+      if (value != null) {
+        const hasMin = r.ideal_min != null;
+        const hasMax = r.ideal_max != null;
+        if (hasMin && value < r.ideal_min) {
+          status = 'warn-low';
+          warning = r.low_warn || '低於建議範圍';
+        } else if (hasMax && value > r.ideal_max) {
+          status = 'warn-high';
+          warning = r.high_warn || '高於建議範圍';
+        } else if (hasMin || hasMax) {
+          status = 'ok';
+        }
+      }
+      results.push(Object.assign({}, r, { value, status, warning }));
+    }
+    return results;
+  }
+
+  function renderRatiosSection(totals) {
+    const ratios = calcRatiosLocal(totals);
+    const wrap = el('div', { class: 'ratios' });
+    for (const r of ratios) {
+      const idealLabel = r.ideal_label
+        ? r.ideal_label
+        : (r.ideal_min != null && r.ideal_max != null
+            ? `${r.ideal_min}~${r.ideal_max}`
+            : (r.ideal_min != null ? `≥${r.ideal_min}` : ''));
+      const statusClass = r.status === 'warn-low' || r.status === 'warn-high'
+        ? 'warn' : r.status;
+
+      const children = [
+        el('div', { class: 'ratio-row-main' }, [
+          el('div', { class: 'ratio-name' }, [
+            r.name,
+            idealLabel ? el('span', { class: 'ratio-ideal' }, ' (' + idealLabel + ')') : null
+          ]),
+          el('div', { class: 'ratio-value ' + statusClass },
+            r.value == null ? '—' : fmtNutVal(r.value))
+        ])
+      ];
+      if (r.warning && (r.status === 'warn-low' || r.status === 'warn-high')) {
+        children.push(el('div', { class: 'ratio-warning' }, [
+          el('span', { class: 'ratio-warning-icon' },
+            r.status === 'warn-low' ? '↓' : '↑'),
+          ' ',
+          r.warning
+        ]));
+      }
+      wrap.appendChild(el('div', { class: 'ratio-row status-' + statusClass }, children));
+    }
+    return el('div', { class: 'gen-full-section' }, [
+      el('div', { class: 'gen-full-section-title' }, '比例分析'),
+      wrap
+    ]);
+  }
+
   function renderFullDash(achievement) {
     const sectionOrder = ['macro', 'mineral', 'vitamin', 'aa', 'other'];
     const grouped = { macro: [], mineral: [], vitamin: [], aa: [], other: [] };
@@ -496,12 +635,25 @@
     children.push(el('div', { class: 'gen-mini-dash' }, dashRows));
 
     // 完整營養分析 (折疊) — 跟計算器頁同樣分區/呈現
+    // 包含: 達標儀表板 + 乾物質% + 比例分析
     const fullDashDetails = document.createElement('details');
     fullDashDetails.className = 'gen-full-dash-wrap';
     const summary = document.createElement('summary');
-    summary.innerHTML = '📋 <b>完整營養分析</b>（' + v.achievement.length + ' 項，點開展開）';
+    summary.innerHTML = '📋 <b>完整營養分析</b>（達標儀表板 + 乾物質% + 比例分析，點開展開）';
     fullDashDetails.appendChild(summary);
-    fullDashDetails.appendChild(renderFullDash(v.achievement));
+
+    const fullBody = document.createElement('div');
+    fullBody.className = 'gen-full-body';
+    // 1. 達標儀表板
+    fullBody.appendChild(el('div', { class: 'gen-full-section' }, [
+      el('div', { class: 'gen-full-section-title' }, '達標儀表板'),
+      renderFullDash(v.achievement)
+    ]));
+    // 2. 乾物質基礎分析
+    fullBody.appendChild(renderDMSection(v.totals));
+    // 3. 比例分析
+    fullBody.appendChild(renderRatiosSection(v.totals));
+    fullDashDetails.appendChild(fullBody);
     children.push(fullDashDetails);
 
     children.push(el('div', { class: 'gen-variant-actions' }, [

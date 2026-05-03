@@ -2180,3 +2180,21 @@ html, body {
 .gen-full-dash {
   padding: 8px 10px;
 }
+
+/* gen 完整分析內部 — 區段分隔 */
+.gen-full-body { display: flex; flex-direction: column; gap: 14px; padding: 10px 12px 14px; }
+.gen-full-section { background: var(--card); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px; }
+.gen-full-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--brown-deep);
+  border-left: 3px solid var(--accent);
+  padding-left: 6px;
+  margin-bottom: 8px;
+}
+/* 微調儀表板 / DM / ratio 在折疊區內的尺寸 */
+.gen-full-section .dashboard { font-size: 12px; }
+.gen-full-section .dash-row-main { gap: 6px; }
+.gen-full-section .dash-section-header { font-size: 11px; padding: 4px 8px; }
+.gen-full-section .dm-grid { font-size: 12px; }
+.gen-full-section .ratio-row { font-size: 12px; }
