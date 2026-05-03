@@ -820,18 +820,16 @@
     });
     document.getElementById('gen-maxauto-wrap').hidden = (GEN.mode !== 'open');
 
-    // 自動補上限 — 各類 slider (最多)
-    document.querySelectorAll('.gen-cat-slider').forEach(slider => {
-      const cat = slider.dataset.cat;
-      const valEl = document.querySelector(`[data-cat-val="${cat}"]`);
-      if (GEN.maxAutoByCat[cat] != null) {
-        slider.value = GEN.maxAutoByCat[cat];
-        if (valEl) valEl.textContent = GEN.maxAutoByCat[cat];
-      }
-      slider.addEventListener('input', e => {
-        const n = parseInt(e.target.value, 10);
-        GEN.maxAutoByCat[cat] = isFinite(n) ? n : 0;
-        if (valEl) valEl.textContent = GEN.maxAutoByCat[cat];
+    // 自動補上限 — 各類 number input (最多)
+    document.querySelectorAll('.gen-cat-max').forEach(inp => {
+      const cat = inp.dataset.catMax;
+      if (GEN.maxAutoByCat[cat] != null) inp.value = GEN.maxAutoByCat[cat];
+      inp.addEventListener('input', e => {
+        let n = parseInt(e.target.value, 10);
+        if (!isFinite(n) || n < 0) n = 0;
+        const hardMax = parseInt(e.target.max, 10) || 10;
+        if (n > hardMax) n = hardMax;
+        GEN.maxAutoByCat[cat] = n;
         // min 不能 > max
         const minInput = document.querySelector(`[data-cat-min="${cat}"]`);
         if (minInput && parseInt(minInput.value, 10) > n) {
@@ -839,6 +837,10 @@
           GEN.minAutoByCat[cat] = n;
         }
         saveGen();
+      });
+      inp.addEventListener('blur', e => {
+        // blur 時把值寫回 (清掉非法)
+        e.target.value = GEN.maxAutoByCat[cat];
       });
     });
     // 自動補下限 — 各類 number input (最少, 強制)
@@ -851,8 +853,10 @@
         const max = GEN.maxAutoByCat[cat] != null ? GEN.maxAutoByCat[cat] : 0;
         if (n > max) n = max;
         GEN.minAutoByCat[cat] = n;
-        e.target.value = n;
         saveGen();
+      });
+      inp.addEventListener('blur', e => {
+        e.target.value = GEN.minAutoByCat[cat];
       });
     });
 
