@@ -191,7 +191,10 @@
       const gpu = food.gramsPerUnit || 1;
       const stepStr = (unit === '顆' || unit === '包' || unit === '匙') ? '0.5' : '0.1';
       // 一行: [食材名] [input+unit] [模式] [✕]
-      const isLong = name.length > 7;
+      // 中文 1 字 ≈ 2 byte, 英文 1 字 = 1 byte. 用粗略寬度判斷:
+      // 中文 > 5 字 或 英文/混合 > 8 字 → long
+      const isLong = name.length > 7 ||
+        (/[A-Za-z]/.test(name) && name.length > 6);
       const row = el('div', { class: 'gen-sel-row' }, [
         el('span', { class: 'gen-sel-name' + (isLong ? ' long' : '') }, name),
         el('div', { class: 'gen-sel-input-wrap' }, [
