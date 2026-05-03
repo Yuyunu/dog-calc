@@ -5,12 +5,12 @@
    ============================================================ */
 
 :root {
-  /* 主色系 — 暖米黃底 + 白卡 + 深棕字 (底色加深讓白卡浮出 + 文字更清晰) */
-  --bg: #ede2c9;             /* 暖米黃 (深一階 — 白卡才會跳出來) */
-  --card: #ffffff;
-  --text: #2e1f10;           /* 加深棕字 */
-  --text-dim: #6b513a;       /* 中棕次要文字 (略加深) */
-  --border: #d4c5a3;         /* 暖棕邊 (略加深, 卡片邊更明顯) */
+  /* 主色系 — 跟 carb-calc 一致 (暖米白底 / 白卡 / 深棕字 / 暖淺金邊) */
+  --bg: #FFFAF0;             /* carb-calc --bg-page (暖米白) */
+  --card: #FFFFFF;           /* carb-calc --bg-card */
+  --text: #3D2914;           /* carb-calc --c-dark-brown */
+  --text-dim: #7A5C3F;       /* carb-calc --c-text-secondary */
+  --border: #F4E4BC;         /* carb-calc --bd-card (暖淺金) */
 
   /* 主色 — 開心果綠 */
   --accent: #93c572;
@@ -39,9 +39,9 @@
   --ref-border: #d8d0bc;
   --ref-text: #6b5a48;
 
-  /* 輸入欄 */
-  --input: #fbf9f2;
-  --input-highlight: #fff8e7;
+  /* 輸入欄 — 跟 carb-calc 一致 (白底) */
+  --input: #FFFFFF;          /* carb-calc --bg-input */
+  --input-highlight: #FFF8E7;
 
   /* Section header colors — 綠/棕/金/紅 */
   --section-macro: #93c572;       /* 巨量營養素 — 綠 (主色) */
@@ -79,11 +79,12 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #2E1503;             /* 深咖啡 (使用者指定) */
-    --card: #4a2810;           /* 卡片提一階, 在深底上浮出 */
-    --text: #f5e8d3;           /* 米白 */
-    --text-dim: #c4b094;       /* 暖灰棕 */
-    --border: #5c4a35;
+    /* 跟 carb-calc dark mode 一致 (暖深棕黑) */
+    --bg: #1F1610;             /* carb-calc --bg-page */
+    --card: #2A1E16;           /* carb-calc --bg-card */
+    --text: #F5E6D3;           /* carb-calc --c-text */
+    --text-dim: #C8B89F;       /* carb-calc --c-text-muted */
+    --border: #5C4A3A;         /* carb-calc --bd-card */
 
     --accent: #a8d788;          /* 飽和度提一階適應深底 */
     --accent-dark: #93c572;
@@ -109,7 +110,7 @@
     --ref-border: #4a3c2a;
     --ref-text: #b8a690;
 
-    --input: #3d2f20;
+    --input: #36281D;          /* carb-calc --bg-input dark */
     --input-highlight: #4a3a20;
 
     --shadow: 0 1px 3px rgba(0,0,0,.4);
