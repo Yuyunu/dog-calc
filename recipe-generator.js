@@ -469,6 +469,7 @@
         lockedPortions: { ...lockedPortions },
         candidatePool: candidatePoolWithLimit,
         userSelectedSet,
+        lockedHardSet,
         maxAuto: mode === 'closed' ? 0 : maxAuto,
         maxAutoByCat: mode === 'closed' ? null : maxAutoByCat,
         minAutoByCat: mode === 'closed' ? null : minAutoByCat,
@@ -525,10 +526,11 @@
   function greedyFillCore(opts) {
     const {
       foodMap, standards, der, kcalCap,
-      lockedPortions, candidatePool, userSelectedSet,
+      lockedPortions, candidatePool, userSelectedSet, lockedHardSet,
       maxAuto, maxAutoByCat, minAutoByCat, proteinBias, weight, maxGramsGetter,
       autoFoodUsage
     } = opts;
+    const lockedSet = lockedHardSet || new Set();
 
     const portions = { ...lockedPortions };
     const autoAdded = new Set();
@@ -608,15 +610,24 @@
         if (proteinBias && proteinBias.has(food.category)) score *= 1.25;
 
         // 接近 max 的營養素 → 加它的食材 score 衰減 (避免單一食材吃光某營養 budget)
-        // 例如 Cu 已 80% max, 高 Cu 食材 score × 0.6, 90% max → × 0.3, 95% → × 0.15
+        // 50% 起步衰減, 100% 拉到接近 0 (留 budget 給後續食材)
         for (const [k, mx] of Object.entries(maxes)) {
           const adds = getFoodNutrient(food, k) * step;
           if (adds <= 0) continue;
           const futureRatio = (getProvided(totals, k) + adds) / mx;
-          if (futureRatio > 0.7) {
-            score *= Math.max(0.15, 1 - (futureRatio - 0.7) * 2.5);
+          if (futureRatio > 0.5) {
+            score *= Math.max(0.05, 1 - (futureRatio - 0.5) * 1.9);
           }
         }
+        // 單一食材對任一 max nutrient 的累積貢獻 ≤ 60%, 防止單一食材吃光 budget
+        let singleHogged = false;
+        for (const [k, mx] of Object.entries(maxes)) {
+          const perG = food[k];
+          if (!perG || perG <= 0) continue;
+          const cumulativeFromThisFood = (cur + step) * perG;
+          if (cumulativeFromThisFood > mx * 0.60) { singleHogged = true; break; }
+        }
+        if (singleHogged) continue;
 
         // 跨變體變化壓力: 之前變體用過的自動補食材, 在此變體 score ×0.6, 用過 2 次 ×0.42
         // (只對「自動補」食材生效, 使用者勾選的不打折)
@@ -650,6 +661,52 @@
           autoAddedByCat[bucket] = (autoAddedByCat[bucket] || 0) + 1;
         }
         autoAdded.add(bestFood.name);
+      }
+    }
+
+    // === 成長既有食材 post-pass ===
+    // 分桶上限可能擋住新加食材, 但既有食材還能長 (autoAdded.has 已在 set, 上限不擋)
+    // 純粹基於 deficit 評分, 不限分桶, 但仍守 max + Ca:P
+    {
+      let safety = 300;
+      while (safety-- > 0) {
+        const t = calcTotals(portions, foodMap);
+        if ((t.kcal || 0) >= kcalCap) break;
+        const def = computeDeficits(t, targets);
+        if (Object.keys(def).length === 0) break;
+
+        let pick = null;
+        let bestS = 0;
+        let bestStep = 0;
+        // 優先成長「目前已在 portions 裡的食材」(包含 user + auto)
+        for (const food of candidatePool) {
+          if ((portions[food.name] || 0) <= 0) continue;     // 必須已在配方
+          const step = stepGramsFor(food);
+          const cur = portions[food.name];
+          const limit = maxGramsGetter(food, kcalCap);
+          if (cur + step > limit) continue;
+          const kcalAdd = (food.kcal || 0) * step;
+          if ((t.kcal || 0) + kcalAdd > kcalCap) continue;
+          // max 不超
+          let blocked = false;
+          for (const [k, mx] of Object.entries(maxes)) {
+            const adds = getFoodNutrient(food, k) * step;
+            if (adds > 0 && getProvided(t, k) + adds > mx) { blocked = true; break; }
+          }
+          if (blocked) continue;
+          if (wouldExceedRatio(food, step, t, 'ca_mg', 'p_mg', 2.0)) continue;
+          // Score
+          let s = 0;
+          for (const [k, info] of Object.entries(def)) {
+            const perG = getFoodNutrient(food, k);
+            if (perG <= 0) continue;
+            const added = perG * step;
+            s += Math.min(added, info.deficit) / info.deficit;
+          }
+          if (s > bestS) { bestS = s; pick = food; bestStep = step; }
+        }
+        if (!pick || bestS === 0) break;
+        portions[pick.name] = (portions[pick.name] || 0) + bestStep;
       }
     }
 
@@ -716,6 +773,121 @@
           }
           autoAdded.add(pick.name);
         }
+      }
+    }
+
+    // === Swap pass — 替換 maxed donor → deficit filler ===
+    // 場景: greedy 把 Cu (來自 organ meat) 推到 max, 後續想加蛋白/維生素的 food 都被擋。
+    // 解法: 試著減 1 step 高 Cu 食材 (donor), 然後加 1 step 缺口食材 (filler), 看 deficit 有沒有減少。
+    {
+      let swapSafety = 40;
+      while (swapSafety-- > 0) {
+        const t = calcTotals(portions, foodMap);
+        const def = computeDeficits(t, targets);
+        if (Object.keys(def).length === 0) break;
+        const defCount = Object.keys(def).length;
+
+        // 找 ≥ 95% max 的 nutrient (卡 max 的)
+        const blockedKeys = [];
+        for (const [k, mx] of Object.entries(maxes)) {
+          if (getProvided(t, k) >= mx * 0.95) blockedKeys.push({ key: k, mx });
+        }
+        if (blockedKeys.length === 0) break;
+
+        let swapped = false;
+        for (const { key: blockedKey } of blockedKeys) {
+          // 對每個 blocked nutrient, 找貢獻最大的食材作 donor (不動 user 食材, 不動 lock 食材)
+          const donors = [];
+          for (const [name, grams] of Object.entries(portions)) {
+            if (grams <= 0) continue;
+            if (lockedSet.has(name)) continue;
+            if (userSelectedSet.has(name)) continue;
+            const food = foodMap[name];
+            if (!food) continue;
+            const step = stepGramsFor(food);
+            if (grams - step < 0) continue;
+            const contrib = (food[blockedKey] || 0) * step;
+            if (contrib <= 0) continue;
+            donors.push({ food, step, contrib });
+          }
+          donors.sort((a, b) => b.contrib - a.contrib);
+          if (donors.length === 0) continue;
+
+          // 試最大的 donor: 減 1 step, 看能不能加一個有用 filler
+          for (const d of donors.slice(0, 3)) {
+            const origPortions = { ...portions };
+            portions[d.food.name] -= d.step;
+            if (portions[d.food.name] <= 0.001) delete portions[d.food.name];
+
+            // 找 filler (純缺口導向, 不限分桶 — 已成長 food 不算 cat-cap)
+            const tNew = calcTotals(portions, foodMap);
+            const defNew = computeDeficits(tNew, targets);
+
+            let pick = null, bestS = 0, bestStep = 0;
+            for (const food of candidatePool) {
+              if (food.name === d.food.name) continue;       // 不要又加回 donor
+              const isExistingFood = (origPortions[food.name] || 0) > 0;
+              if (!userSelectedSet.has(food.name) && !isExistingFood) {
+                // 新食材仍守分桶 cap
+                if (useByCatCap) {
+                  const bucket = foodBucket(food);
+                  const cap = maxAutoByCat[bucket] != null ? maxAutoByCat[bucket] : 0;
+                  if (cap <= 0) continue;
+                  if ((autoAddedByCat[bucket] || 0) >= cap) continue;
+                }
+              }
+              const step = stepGramsFor(food);
+              const cur = portions[food.name] || 0;
+              const limit = maxGramsGetter(food, kcalCap);
+              if (cur + step > limit) continue;
+              const kcalAdd = (food.kcal || 0) * step;
+              if ((tNew.kcal || 0) + kcalAdd > kcalCap) continue;
+              // max 不超
+              let blocked = false;
+              for (const [k, mx] of Object.entries(maxes)) {
+                const adds = getFoodNutrient(food, k) * step;
+                if (adds > 0 && getProvided(tNew, k) + adds > mx) { blocked = true; break; }
+              }
+              if (blocked) continue;
+              if (wouldExceedRatio(food, step, tNew, 'ca_mg', 'p_mg', 2.0)) continue;
+              let s = 0;
+              for (const [k, info] of Object.entries(defNew)) {
+                const perG = getFoodNutrient(food, k);
+                if (perG <= 0) continue;
+                const added = perG * step;
+                s += Math.min(added, info.deficit) / info.deficit;
+              }
+              if (s > bestS) { bestS = s; pick = food; bestStep = step; }
+            }
+
+            if (pick && bestS > 0) {
+              portions[pick.name] = (portions[pick.name] || 0) + bestStep;
+              if (!userSelectedSet.has(pick.name) && !autoAdded.has(pick.name)) {
+                const bucket = foodBucket(pick);
+                autoAddedByCat[bucket] = (autoAddedByCat[bucket] || 0) + 1;
+                autoAdded.add(pick.name);
+              }
+              // Donor 減完後若 grams=0 但仍在 autoAdded set, 留著 (仍計分桶, 不重複)
+              const finalT = calcTotals(portions, foodMap);
+              const finalDef = computeDeficits(finalT, targets);
+              if (Object.keys(finalDef).length < defCount) {
+                swapped = true;
+                break;
+              } else {
+                // swap 沒改善 deficit → 還原
+                Object.assign(portions, origPortions);
+                // 移除剛剛 add 的 pick
+                portions[pick.name] = origPortions[pick.name] || 0;
+                if (portions[pick.name] === 0) delete portions[pick.name];
+              }
+            } else {
+              // 沒找到 filler → 還原 donor
+              Object.assign(portions, origPortions);
+            }
+          }
+          if (swapped) break;
+        }
+        if (!swapped) break;
       }
     }
 
