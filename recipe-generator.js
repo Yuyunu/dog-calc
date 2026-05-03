@@ -485,7 +485,8 @@
 
       const totals = calcTotals(result.portions, foodMap);
       const ach = calcAchievement(totals, standards, weight, der);
-      const unmet = ach.filter(a => a.pct != null && a.pct < 0.8 && a.key !== 'kcal' && !a.is_taurine);
+      // 任何 < 100% 都算 unmet (不是只 < 80%, 因為使用者要求嚴格)
+      const unmet = ach.filter(a => a.pct != null && a.pct < 1.0 && a.key !== 'kcal' && !a.is_taurine);
       const overTopMax = ach.filter(a => a.status === 'bad');
 
       // 排序 foods 顯示順序: 使用者勾選的依原始順序 → 自動補充 → 0 grams 不顯示
@@ -606,6 +607,17 @@
 
         if (proteinBias && proteinBias.has(food.category)) score *= 1.25;
 
+        // 接近 max 的營養素 → 加它的食材 score 衰減 (避免單一食材吃光某營養 budget)
+        // 例如 Cu 已 80% max, 高 Cu 食材 score × 0.6, 90% max → × 0.3, 95% → × 0.15
+        for (const [k, mx] of Object.entries(maxes)) {
+          const adds = getFoodNutrient(food, k) * step;
+          if (adds <= 0) continue;
+          const futureRatio = (getProvided(totals, k) + adds) / mx;
+          if (futureRatio > 0.7) {
+            score *= Math.max(0.15, 1 - (futureRatio - 0.7) * 2.5);
+          }
+        }
+
         // 跨變體變化壓力: 之前變體用過的自動補食材, 在此變體 score ×0.6, 用過 2 次 ×0.42
         // (只對「自動補」食材生效, 使用者勾選的不打折)
         if (autoFoodUsage && !userSelectedSet.has(food.name)) {
@@ -638,6 +650,72 @@
           autoAddedByCat[bucket] = (autoAddedByCat[bucket] || 0) + 1;
         }
         autoAdded.add(bestFood.name);
+      }
+    }
+
+    // === 缺口最終補強 post-pass ===
+    // greedy 可能因為 protein bias / variety 壓力而停, 但仍有 nutrient 不到 100% min
+    // 這個 pass 純粹看 deficit, 忽略 bias / variety 壓力, 嘗試補足
+    // 仍尊重: max nutrient cap, Ca:P, 各類分桶上限, kcal cap
+    {
+      let safety = 200;
+      while (safety-- > 0) {
+        const t = calcTotals(portions, foodMap);
+        if ((t.kcal || 0) >= kcalCap) break;
+        const def = computeDeficits(t, targets);
+        if (Object.keys(def).length === 0) break;
+
+        let pick = null;
+        let bestS = 0;
+        let bestStep = 0;
+        for (const food of candidatePool) {
+          if (!userSelectedSet.has(food.name)) {
+            // 自動補食材仍受分桶上限
+            if (useByCatCap) {
+              const bucket = foodBucket(food);
+              const cap = maxAutoByCat[bucket] != null ? maxAutoByCat[bucket] : 0;
+              if (cap <= 0) continue;
+              if ((autoAddedByCat[bucket] || 0) >= cap && !autoAdded.has(food.name)) continue;
+            } else if (maxAuto > 0) {
+              if (autoAdded.size >= maxAuto && !autoAdded.has(food.name)) continue;
+            } else {
+              continue;
+            }
+          }
+          const step = stepGramsFor(food);
+          const cur = portions[food.name] || 0;
+          const limit = maxGramsGetter(food, kcalCap);
+          if (cur + step > limit) continue;
+          const kcalAdd = (food.kcal || 0) * step;
+          if ((t.kcal || 0) + kcalAdd > kcalCap) continue;
+          // max 不超
+          let blocked = false;
+          for (const [k, mx] of Object.entries(maxes)) {
+            const adds = getFoodNutrient(food, k) * step;
+            if (adds > 0 && getProvided(t, k) + adds > mx) { blocked = true; break; }
+          }
+          if (blocked) continue;
+          // Ca:P 不超
+          if (wouldExceedRatio(food, step, t, 'ca_mg', 'p_mg', 2.0)) continue;
+          // Score: 對剩餘 deficit 的覆蓋率 (純缺口導向, 不算 bias / variety)
+          let s = 0;
+          for (const [k, info] of Object.entries(def)) {
+            const perG = getFoodNutrient(food, k);
+            if (perG <= 0) continue;
+            const added = perG * step;
+            s += Math.min(added, info.deficit) / info.deficit;
+          }
+          if (s > bestS) { bestS = s; pick = food; bestStep = step; }
+        }
+        if (!pick || bestS === 0) break;
+        portions[pick.name] = (portions[pick.name] || 0) + bestStep;
+        if (!userSelectedSet.has(pick.name)) {
+          if (!autoAdded.has(pick.name)) {
+            const bucket = foodBucket(pick);
+            autoAddedByCat[bucket] = (autoAddedByCat[bucket] || 0) + 1;
+          }
+          autoAdded.add(pick.name);
+        }
       }
     }
 

@@ -630,11 +630,11 @@
     ];
 
     if (v.unmet && v.unmet.length > 0) {
-      const list = v.unmet.slice(0, 6).map(u =>
+      const list = v.unmet.slice(0, 8).map(u =>
         `${u.name} ${(u.pct * 100).toFixed(0)}%`
       ).join('、');
       children.push(el('div', { class: 'gen-variant-warn' }, [
-        el('b', {}, '⚠️ 不足 (<80%)：'),
+        el('b', {}, '⚠️ 未達下限 (<100%)：'),
         ' ' + list
       ]));
     }
