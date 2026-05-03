@@ -93,7 +93,8 @@
     if (c === '水果' || c === '水果類') return 'fruit';
     if (c === '蛋類') return 'egg';
     if (c === '穀物' || c === '澱粉類' || c === '根莖類') return 'grain';
-    if (c.startsWith('補充品') || c.startsWith('油') || c === '種子') return 'supp';
+    if (c.startsWith('油')) return 'oil';
+    if (c.startsWith('補充品') || c === '種子') return 'supp';
     return 'other';
   }
 
@@ -499,7 +500,7 @@
 
     const portions = { ...lockedPortions };
     const autoAdded = new Set();
-    const autoAddedByCat = { meat: 0, veg: 0, fruit: 0, egg: 0, grain: 0, supp: 0, other: 0 };
+    const autoAddedByCat = { meat: 0, veg: 0, fruit: 0, egg: 0, grain: 0, oil: 0, supp: 0, other: 0 };
     const useByCatCap = !!maxAutoByCat;
     const { targets, maxes } = buildTargets(standards, der);
 

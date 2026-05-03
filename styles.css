@@ -410,10 +410,13 @@ html, body {
   transform: scale(0.96);
 }
 
-.chip:hover {
-  background: var(--cat-color, var(--cat-default));
-  color: white;
-  opacity: 0.85;
+/* :hover 只對有滑鼠的裝置, 避免 iOS 觸控 tap 後 hover 卡住 (chip 看起來像被選中) */
+@media (hover: hover) {
+  .chip:hover {
+    background: var(--cat-color, var(--cat-default));
+    color: white;
+    opacity: 0.85;
+  }
 }
 
 .chip.active {
