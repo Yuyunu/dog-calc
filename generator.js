@@ -183,66 +183,49 @@
       const unit = food.unit || 'g';
       const gpu = food.gramsPerUnit || 1;
       const stepStr = (unit === '顆' || unit === '包' || unit === '匙') ? '0.5' : '0.1';
+      // 一行: [食材名] [input+unit] [模式] [✕]
       const row = el('div', { class: 'gen-sel-row' }, [
-        el('div', { class: 'gen-sel-name' }, [
-          el('span', {}, name),
-          el('span', { class: 'gen-sel-name-cat' }, food.category || '')
-        ]),
-        el('div', { class: 'gen-sel-controls' }, [
-          el('div', { class: 'gen-sel-input-wrap' }, [
-            el('input', {
-              type: 'number',
-              placeholder: `${GEN.days}天總量`,
-              min: '0',
-              step: stepStr,
-              inputmode: 'decimal',
-              value: sel.portion == null ? '' : sel.portion,
-              oninput: e => {
-                const v = e.target.value;
-                if (v === '' || v == null) {
-                  sel.portion = null;
-                } else {
-                  const n = parseFloat(v);
-                  sel.portion = isFinite(n) && n >= 0 ? n : null;
-                }
-                saveGen();
-                // 即時更新 g 換算提示
-                const eqEl = e.target.parentElement.querySelector('.gen-sel-eq');
-                if (eqEl) {
-                  if (sel.portion != null && unit !== 'g') {
-                    eqEl.textContent = '= ' + (sel.portion * gpu).toFixed(1) + 'g';
-                  } else {
-                    eqEl.textContent = '';
-                  }
-                }
+        el('span', { class: 'gen-sel-name' }, name),
+        el('div', { class: 'gen-sel-input-wrap' }, [
+          el('input', {
+            type: 'number',
+            placeholder: `${GEN.days}天總量`,
+            min: '0',
+            step: stepStr,
+            inputmode: 'decimal',
+            value: sel.portion == null ? '' : sel.portion,
+            oninput: e => {
+              const v = e.target.value;
+              if (v === '' || v == null) {
+                sel.portion = null;
+              } else {
+                const n = parseFloat(v);
+                sel.portion = isFinite(n) && n >= 0 ? n : null;
               }
-            }),
-            el('span', { class: 'gen-sel-unit' }, unit),
-            // 對於 顆/包/匙 食材, 顯示對應 g 換算讓使用者不混淆
-            unit !== 'g'
-              ? el('span', { class: 'gen-sel-eq' },
-                  sel.portion != null ? '= ' + (sel.portion * gpu).toFixed(1) + 'g' : '')
-              : null,
-          ]),
-          el('select', {
-            onchange: e => { sel.mode = e.target.value; saveGen(); }
-          }, [
-            ['free', '自由調整'],
-            ['lock', '鎖定份量'],
-            ['min', '最少這個量'],
-            ['max', '最多這個量'],
-          ].map(([v, label]) => {
-            const o = el('option', { value: v }, label);
-            if (sel.mode === v) o.selected = true;
-            return o;
-          })),
-          el('button', {
-            class: 'gen-sel-remove',
-            type: 'button',
-            title: '移除',
-            onclick: () => toggleGenFood(name)
-          }, '✕'),
-        ])
+              saveGen();
+            }
+          }),
+          el('span', { class: 'gen-sel-unit' }, unit),
+        ]),
+        el('select', {
+          class: 'gen-sel-mode',
+          onchange: e => { sel.mode = e.target.value; saveGen(); }
+        }, [
+          ['free', '自由'],
+          ['lock', '鎖定'],
+          ['min', '最少'],
+          ['max', '最多'],
+        ].map(([v, label]) => {
+          const o = el('option', { value: v }, label);
+          if (sel.mode === v) o.selected = true;
+          return o;
+        })),
+        el('button', {
+          class: 'gen-sel-remove',
+          type: 'button',
+          title: '移除',
+          onclick: () => toggleGenFood(name)
+        }, '✕'),
       ]);
       wrap.appendChild(row);
     }

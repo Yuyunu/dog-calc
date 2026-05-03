@@ -1831,56 +1831,47 @@ html, body {
   flex-direction: column;
   gap: 8px;
 }
+/* 一行排列: [食材名] [input+unit] [模式] [✕] */
 .gen-sel-row {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr) 110px 64px 28px;
   gap: 6px;
-  padding: 10px;
+  padding: 6px 8px;
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
   background: var(--input);
+  align-items: center;
 }
 .gen-sel-name {
   font-weight: 600;
-  font-size: 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  font-size: 13px;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
 }
-.gen-sel-name-cat {
-  font-size: 11px;
-  font-weight: 500;
-  color: var(--text-dim);
-  background: var(--card);
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid var(--border);
-}
-.gen-sel-controls {
-  display: grid;
-  grid-template-columns: 1fr 1fr auto;
-  gap: 6px;
-  align-items: center;
-}
-.gen-sel-controls input,
-.gen-sel-controls select {
+.gen-sel-mode {
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 6px 8px;
-  font-size: 13px;
+  padding: 4px 4px;
+  font-size: 12px !important;
   font-family: inherit;
   color: var(--text);
+  min-width: 0;
+  width: 100%;
 }
 .gen-sel-remove {
   background: transparent;
   border: none;
   color: var(--bad-text);
-  font-size: 18px;
+  font-size: 16px;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 2px;
   line-height: 1;
+  width: 28px;
+  height: 28px;
 }
 
 /* 結果區 */
@@ -2110,23 +2101,24 @@ html, body {
   margin-bottom: 10px;
 }
 
-/* gen 食材 input + unit 標籤 + g 換算 */
+/* gen 食材 input + unit 標籤 (一行緊湊版) */
 .gen-sel-input-wrap {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 2px;
   background: var(--card);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
-  padding: 0 6px 0 0;
+  padding: 0 4px 0 0;
   min-width: 0;
 }
 .gen-sel-input-wrap input {
   background: transparent !important;
   border: none !important;
-  padding: 6px 4px 6px 8px !important;
+  padding: 4px 2px 4px 6px !important;
   flex: 1 1 0;
   min-width: 0;
+  width: 100%;
   color: var(--text);
 }
 .gen-sel-input-wrap input:focus { outline: none; }
