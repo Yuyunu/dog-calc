@@ -21,6 +21,7 @@
       meat: 0, veg: 0, fruit: 0, egg: 0, grain: 0, oil: 0, supp: 0
     },
     selections: {},          // { foodName: { mode: 'lock'|'min'|'max'|'free', grams: number|null } }
+    exclusions: {},          // { foodName: true } — 排除的食材, 演算法絕不會選
     lastVariants: null
   };
 
@@ -36,7 +37,8 @@
         maxAuto: GEN.maxAuto,
         maxAutoByCat: GEN.maxAutoByCat,
         minAutoByCat: GEN.minAutoByCat,
-        selections: GEN.selections
+        selections: GEN.selections,
+        exclusions: GEN.exclusions
       }));
     } catch (e) { console.warn('gen save fail', e); }
   }
@@ -52,6 +54,7 @@
       if (d.maxAutoByCat) Object.assign(GEN.maxAutoByCat, d.maxAutoByCat);
       if (d.minAutoByCat) Object.assign(GEN.minAutoByCat, d.minAutoByCat);
       if (d.selections) GEN.selections = d.selections;
+      if (d.exclusions) GEN.exclusions = d.exclusions;
     } catch (e) { console.warn('gen load fail', e); }
   }
 
@@ -133,14 +136,19 @@
         el('div', { class: 'picker-chips' },
           foods.map(food => {
             const isActive = !!GEN.selections[food.name];
+            const isExcluded = !!GEN.exclusions[food.name];
             const color = CAT_COLOR[food.category] || 'var(--cat-default)';
+            let cls = 'chip';
+            let icon = '+';
+            if (isActive) { cls += ' active'; icon = '✓'; }
+            else if (isExcluded) { cls += ' excluded'; icon = '✗'; }
             return el('button', {
               type: 'button',
-              class: 'chip' + (isActive ? ' active' : ''),
+              class: cls,
               style: `--cat-color: ${color}`,
               onclick: () => toggleGenFood(food.name)
             }, [
-              el('span', { class: 'chip-icon' }, isActive ? '✓' : '+'),
+              el('span', { class: 'chip-icon' }, icon),
               food.name
             ]);
           })
@@ -150,11 +158,17 @@
     }
   }
 
+  // 3-state 循環: 未選(+) → 選用(✓) → 排除(✗) → 未選(+)
   function toggleGenFood(name) {
-    if (GEN.selections[name]) {
+    if (GEN.exclusions[name]) {
+      // ✗ → +
+      delete GEN.exclusions[name];
+    } else if (GEN.selections[name]) {
+      // ✓ → ✗
       delete GEN.selections[name];
+      GEN.exclusions[name] = true;
     } else {
-      // portion = 食材原生單位的「N 天總量」(g/顆/包/匙) — null 表示由 algo 決定
+      // + → ✓
       GEN.selections[name] = { mode: 'free', portion: null };
     }
     saveGen();
@@ -301,6 +315,7 @@
       activity: a,
       targetKcal: targetKcal,    // 每日 kcal
       selections: sels,           // 每日量
+      exclusions: Object.keys(GEN.exclusions),  // 排除食材名稱列表
       mode: GEN.mode,
       maxAutoByCat: GEN.maxAutoByCat,  // 各類自動補上限
       minAutoByCat: GEN.minAutoByCat,  // 各類強制最少
@@ -766,9 +781,12 @@
   // 清除全部
   // ============================================================
   function clearAllSelections() {
-    if (Object.keys(GEN.selections).length === 0) return;
-    if (!confirm('清除所有已選食材？')) return;
+    const hasAny = Object.keys(GEN.selections).length > 0
+      || Object.keys(GEN.exclusions).length > 0;
+    if (!hasAny) return;
+    if (!confirm('清除所有已選食材 + 排除設定？')) return;
     GEN.selections = {};
+    GEN.exclusions = {};
     saveGen();
     renderPicker();
     renderSelectedList();

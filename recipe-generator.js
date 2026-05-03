@@ -347,8 +347,9 @@
   function generate(opts) {
     const {
       foods, standards, weight, activity, targetKcal,
-      selections, mode, maxAuto, maxAutoByCat, minAutoByCat, numVariants
+      selections, exclusions, mode, maxAuto, maxAutoByCat, minAutoByCat, numVariants
     } = opts;
+    const excludedSet = new Set(exclusions || []);
 
     if (!selections || selections.length === 0) {
       return { error: '請至少勾選 1 樣食材' };
@@ -399,17 +400,18 @@
       // 限制模式: 只用使用者勾選的, 且排除 hard-lock
       candidatePool = selections
         .map(s => foodMap[s.foodName])
-        .filter(f => f && !lockedHardSet.has(f.name));
+        .filter(f => f && !lockedHardSet.has(f.name) && !excludedSet.has(f.name));
     } else {
       // 開放模式: 使用者勾選的 + 開放 is_common 候選
       const set = new Set();
       for (const s of selections) {
         const f = foodMap[s.foodName];
-        if (f && !lockedHardSet.has(f.name)) set.add(f);
+        if (f && !lockedHardSet.has(f.name) && !excludedSet.has(f.name)) set.add(f);
       }
       for (const f of foods) {
         if (set.has(f)) continue;
         if (lockedHardSet.has(f.name)) continue;
+        if (excludedSet.has(f.name)) continue;     // 排除食材永不入候選
         if (isAutoCandidate(f)) set.add(f);
       }
       candidatePool = Array.from(set);
