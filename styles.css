@@ -79,8 +79,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #2B1F12;             /* 暖深褐 */
-    --card: #3a2c1c;
+    --bg: #2E1503;             /* 深咖啡 (使用者指定) */
+    --card: #4a2810;           /* 卡片提一階, 在深底上浮出 */
     --text: #f5e8d3;           /* 米白 */
     --text-dim: #c4b094;       /* 暖灰棕 */
     --border: #5c4a35;
