@@ -765,10 +765,15 @@ function switchTab(name) {
   });
   document.getElementById('page-calculator').hidden = (name !== 'calculator');
   document.getElementById('page-diary').hidden = (name !== 'diary');
+  const genPage = document.getElementById('page-generator');
+  if (genPage) genPage.hidden = (name !== 'generator');
   if (name === 'diary') {
     renderCalendar();
     renderRecipeHistory();
     renderDiaryStats();
+  }
+  if (name === 'generator' && window.GeneratorUI && window.GeneratorUI.onShow) {
+    window.GeneratorUI.onShow();
   }
 }
 

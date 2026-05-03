@@ -23,6 +23,7 @@
   <h1>🐕 狗狗鮮食</h1>
   <nav class="tab-nav">
     <button id="tab-calc" class="tab-btn active" data-page="calculator" type="button">📊 計算器</button>
+    <button id="tab-gen" class="tab-btn" data-page="generator" type="button">🍳 食譜生成</button>
     <button id="tab-diary" class="tab-btn" data-page="diary" type="button">📔 日誌</button>
   </nav>
   <button id="btn-refresh" class="header-btn" type="button" title="重新整理（抓最新版本）" aria-label="重新整理">
@@ -209,6 +210,80 @@
     <p class="disclaimer">本工具僅供參考，實際鮮食配方建議諮詢獸醫師。</p>
   </footer>
 
+</main>
+
+<!-- ============================================================ -->
+<!-- 食譜生成頁面                                                  -->
+<!-- ============================================================ -->
+<main class="container" id="page-generator" hidden>
+
+  <!-- 1. 基本參數 -->
+  <section class="card">
+    <h2 class="section-title">基本參數</h2>
+    <div class="form-grid">
+      <div class="field">
+        <label for="gen-days">天數</label>
+        <input type="number" id="gen-days" value="7" min="1" max="30" step="1" inputmode="numeric">
+      </div>
+      <div class="field">
+        <label for="gen-target-kcal">每日熱量目標 (kcal)</label>
+        <input type="number" id="gen-target-kcal" placeholder="留空 = 依狗狗 DER" step="1" min="0" inputmode="numeric">
+      </div>
+    </div>
+    <p class="hint" id="gen-kcal-hint">DER = — kcal/天 · 總熱量 = — kcal</p>
+  </section>
+
+  <!-- 2. 模式 + 自動補上限 -->
+  <section class="card">
+    <h2 class="section-title">生成模式</h2>
+    <div class="gen-mode-row">
+      <label class="gen-radio">
+        <input type="radio" name="gen-mode" value="closed" checked>
+        <span><b>限制模式</b> · 只用勾選的食材</span>
+      </label>
+      <label class="gen-radio">
+        <input type="radio" name="gen-mode" value="open">
+        <span><b>開放模式</b> · 可自動補食材填補不足</span>
+      </label>
+    </div>
+    <div class="field" id="gen-maxauto-wrap" hidden>
+      <label for="gen-maxauto">最多自動補 <b id="gen-maxauto-val">5</b> 樣食材</label>
+      <input type="range" id="gen-maxauto" min="1" max="10" value="5" step="1">
+      <p class="hint">演算法達上限就停止加新食材</p>
+    </div>
+  </section>
+
+  <!-- 3. 食材選擇 -->
+  <section class="card">
+    <h2 class="section-title">選擇食材</h2>
+    <p class="hint">勾選食材後設定份量與鎖定方式</p>
+    <div id="gen-ingredient-picker" class="ingredient-picker"></div>
+  </section>
+
+  <!-- 4. 已選食材 (份量 + 鎖定模式) -->
+  <section class="card">
+    <div class="section-header">
+      <h2 class="section-title">已選食材設定</h2>
+      <button id="gen-clear-all" class="btn btn-danger" type="button">清除</button>
+    </div>
+    <div id="gen-selected-list" class="gen-selected-list">
+      <p class="empty-state">尚未選擇任何食材</p>
+    </div>
+    <p class="hint">克數留空 = 由演算法決定 · 鎖定模式：鎖定份量/最少這個量/最多這個量/自由調整</p>
+  </section>
+
+  <!-- 5. 生成按鈕 -->
+  <div class="actions">
+    <button id="gen-generate-btn" class="btn btn-primary" type="button">🍳 生成食譜</button>
+  </div>
+
+  <!-- 6. 結果區 -->
+  <div id="gen-results" class="gen-results"></div>
+
+  <footer class="footer">
+    <p><span class="version-tag">食譜生成 v1</span></p>
+    <p class="disclaimer">演算法為啟發式 (heuristic)，建議結果僅供參考。</p>
+  </footer>
 </main>
 
 <!-- ============================================================ -->
@@ -436,8 +511,42 @@
   </div>
 </div>
 
+<!-- ============================================================ -->
+<!-- 食譜生成: 儲存食譜 modal                                      -->
+<!-- ============================================================ -->
+<div id="gen-save-modal" class="food-modal" hidden>
+  <div class="food-modal-backdrop" data-close="gensave"></div>
+  <div class="food-modal-content diary-modal">
+    <header class="food-modal-header">
+      <div class="food-modal-title-wrap">
+        <h3>儲存到食譜庫</h3>
+        <p class="food-modal-meta">儲存後可在日誌頁套用</p>
+      </div>
+      <button class="modal-close" type="button" data-close="gensave" aria-label="關閉">✕</button>
+    </header>
+    <div class="food-modal-body">
+      <div class="diary-form">
+        <div class="field">
+          <label for="gen-save-name">食譜名稱</label>
+          <input type="text" id="gen-save-name" placeholder="例：開放模式雞肉配方">
+        </div>
+        <div class="field">
+          <label for="gen-save-summary">食譜摘要 (可編輯)</label>
+          <textarea id="gen-save-summary" rows="6"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="food-modal-footer">
+      <button class="btn btn-secondary" type="button" data-close="gensave">取消</button>
+      <button id="gen-save-confirm" class="btn btn-primary" type="button">儲存</button>
+    </div>
+  </div>
+</div>
+
 <script src="data.js"></script>
 <script src="app.js"></script>
+<script src="recipe-generator.js"></script>
 <script src="diary.js"></script>
+<script src="generator.js"></script>
 </body>
 </html>
