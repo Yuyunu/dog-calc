@@ -1,58 +1,63 @@
 /* ============================================================
    狗狗鮮食營養計算器 v2 — styles.css
-   主色系：深藍 #1F4E79 (Excel xlsx 美化色系一致)
+   配色系：開心果綠 #93c572 + 暖棕 #8B6F47 + 白
    食材分類：依類別不同顏色外框
    ============================================================ */
 
 :root {
-  /* 主色系 */
-  --bg: #f5f5f0;
+  /* 主色系 — 暖白底 + 棕字 */
+  --bg: #fafaf3;             /* 暖米白 */
   --card: #ffffff;
-  --text: #222;
-  --text-dim: #666;
-  --border: #e0ddd4;
+  --text: #3a2a18;           /* 深棕字 */
+  --text-dim: #7a6048;       /* 中棕次要文字 */
+  --border: #e6dcc8;         /* 暖淺棕邊 */
 
-  /* 主色 — 深藍 (Excel 美化色系) */
-  --accent: #1F4E79;
-  --accent-dark: #15385A;
-  --accent-light: #DDEBF7;
+  /* 主色 — 開心果綠 */
+  --accent: #93c572;
+  --accent-dark: #6fa050;     /* 深一階 hover/active */
+  --accent-light: #e8f3dc;    /* 淺淺綠 highlight */
+  --accent-on: #2e4a1a;       /* 綠底上的深綠/暗字 */
 
-  /* 狀態色 */
-  --ok-bg: #e3f3e5;
-  --ok-border: #b5dcb9;
-  --ok-text: #1f5a2a;
+  /* 棕色輔色 */
+  --brown: #8B6F47;
+  --brown-deep: #6B4F2F;
 
-  --warn-bg: #fbf1d8;
-  --warn-border: #e6c98c;
-  --warn-text: #8a6914;
+  /* 狀態色 — 綠/棕/紅 */
+  --ok-bg: #e8f3dc;
+  --ok-border: #b7d7a0;
+  --ok-text: #4a7a2e;
+
+  --warn-bg: #f4ead7;        /* 暖棕底 (取代之前金黃) */
+  --warn-border: #d8bf8e;
+  --warn-text: #8B6F47;
 
   --bad-bg: #fae2de;
   --bad-border: #e4a69c;
   --bad-text: #8a2e24;
 
-  --ref-bg: #eeece4;
-  --ref-border: #d8d3c4;
-  --ref-text: #5f5f5f;
+  --ref-bg: #f0ebe0;
+  --ref-border: #d8d0bc;
+  --ref-text: #6b5a48;
 
   /* 輸入欄 */
-  --input: #fafaf7;
-  --input-highlight: #FFF8E7;
+  --input: #fbf9f2;
+  --input-highlight: #fff8e7;
 
-  /* Section header colors (跟 xlsx 美化儀表板 section 一致) */
-  --section-macro: #5B9BD5;       /* 巨量營養素 — 藍 */
-  --section-mineral: #ED7D31;     /* 礦物質 — 橘 */
-  --section-vitamin: #FFC000;     /* 維生素 — 金 */
-  --section-aa: #C00000;          /* 胺基酸 — 暗紅 */
-  --section-other: #A6A6A6;       /* 參考用 — 灰 */
-  --section-summary: #70AD47;     /* 摘要 — 綠 */
-  --section-dm: #ED7D31;          /* DM 分析 — 橘 */
-  --section-ratio: #FFC000;       /* 比例分析 — 金 */
+  /* Section header colors — 綠/棕/金/紅 */
+  --section-macro: #93c572;       /* 巨量營養素 — 綠 (主色) */
+  --section-mineral: #8B6F47;     /* 礦物質 — 棕 (取代橘) */
+  --section-vitamin: #d4a64a;     /* 維生素 — 暖金 */
+  --section-aa: #b34638;          /* 胺基酸 — 紅棕 */
+  --section-other: #a89a86;       /* 參考用 — 暖灰棕 */
+  --section-summary: #6fa050;     /* 摘要 — 深綠 */
+  --section-dm: #8B6F47;          /* DM 分析 — 棕 */
+  --section-ratio: #d4a64a;       /* 比例分析 — 金 */
 
-  /* 食材分類色 */
+  /* 食材分類色 (保留繽紛, 食物類別辨識用) */
   --cat-supplement: #7E57C2;       /* 補充品 — 紫 */
   --cat-supplement-cap: #FF7043;   /* 補充品(顆) — 橙 */
   --cat-supplement-pkt: #26A69A;   /* 補充品(包) — 藍綠 */
-  --cat-feed: #1F4E79;             /* 飼料 — 深藍 */
+  --cat-feed: #6B4F2F;             /* 飼料 — 深棕 */
   --cat-meat: #E53935;             /* 肉類 — 紅 */
   --cat-seafood: #29B6F6;          /* 海鮮 — 藍 */
   --cat-egg: #FFB300;              /* 蛋類 — 金黃 */
@@ -62,45 +67,52 @@
   --cat-oil: #689F38;              /* 油脂 — 橄欖綠 */
   --cat-condiment: #757575;        /* 調味 — 灰 */
   --cat-seed: #6D4C41;             /* 種子 — 深棕 */
-  --cat-default: #607D8B;          /* 其他 — 藍灰 */
+  --cat-default: #8B6F47;          /* 其他 — 棕 */
 
-  --shadow: 0 1px 3px rgba(0,0,0,.06);
+  --shadow: 0 1px 3px rgba(70,50,30,.08);
   --radius: 10px;
   --radius-sm: 6px;
+
+  /* iOS safe area */
+  --safe-bottom: env(safe-area-inset-bottom, 0);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #12181a;
-    --card: #1c2428;
-    --text: #e8e8e4;
-    --text-dim: #9aa0a0;
-    --border: #2d363a;
+    --bg: #2B1F12;             /* 暖深褐 */
+    --card: #3a2c1c;
+    --text: #f5e8d3;           /* 米白 */
+    --text-dim: #c4b094;       /* 暖灰棕 */
+    --border: #5c4a35;
 
-    --accent: #5B9BD5;
-    --accent-dark: #1F4E79;
-    --accent-light: #1a2c3e;
+    --accent: #a8d788;          /* 飽和度提一階適應深底 */
+    --accent-dark: #93c572;
+    --accent-light: #2c3a1c;
+    --accent-on: #f5e8d3;
 
-    --ok-bg: #1e3a26;
-    --ok-border: #3a6b47;
-    --ok-text: #8fd69b;
+    --brown: #c4a170;
+    --brown-deep: #d4b58a;
 
-    --warn-bg: #3d3114;
-    --warn-border: #75632c;
-    --warn-text: #ecc968;
+    --ok-bg: #2a3a1c;
+    --ok-border: #5a7a3a;
+    --ok-text: #b5d595;
+
+    --warn-bg: #3a2e18;
+    --warn-border: #6b5635;
+    --warn-text: #d4b58a;
 
     --bad-bg: #3d1e19;
     --bad-border: #7a3a30;
     --bad-text: #f0a89e;
 
-    --ref-bg: #2a2a26;
-    --ref-border: #3a3a35;
-    --ref-text: #aaa8a0;
+    --ref-bg: #322618;
+    --ref-border: #4a3c2a;
+    --ref-text: #b8a690;
 
-    --input: #232b30;
-    --input-highlight: #3a3520;
+    --input: #3d2f20;
+    --input-highlight: #4a3a20;
 
-    --shadow: 0 1px 3px rgba(0,0,0,.3);
+    --shadow: 0 1px 3px rgba(0,0,0,.4);
   }
 }
 
@@ -119,18 +131,19 @@ html, body {
 }
 
 /* ============================================================
-   Header — 深藍主色
+   Header — 白底 + 綠 accent (light), 棕底 + 綠 accent (dark)
    ============================================================ */
 .header {
-  background: var(--accent);
-  background: linear-gradient(135deg, #1F4E79 0%, #15385A 100%);
-  color: white;
-  padding: 14px 16px;
-  padding-top: calc(14px + env(safe-area-inset-top));
+  background: var(--card);
+  color: var(--text);
+  padding: 12px 14px;
+  padding-top: calc(12px + env(safe-area-inset-top));
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 8px;
-  box-shadow: 0 2px 6px rgba(0,0,0,.12);
+  border-bottom: 3px solid var(--accent);
+  box-shadow: 0 1px 4px rgba(70,50,30,.08);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -138,55 +151,16 @@ html, body {
 
 .header h1 {
   margin: 0;
-  font-size: 15px;
-  font-weight: 600;
+  font-size: 17px;
+  font-weight: 700;
   letter-spacing: 0.5px;
   white-space: nowrap;
   flex-shrink: 0;
+  color: var(--brown-deep);
 }
 
-.tab-nav {
-  display: flex;
-  gap: 4px;
-  flex: 1 1 auto;
-  min-width: 0;            /* 允許 tab-nav 縮短，避免擠壓右側 refresh 按鈕 */
-  margin: 0 6px;
-  justify-content: center;
-  overflow-x: auto;        /* 萬一還是塞不下 → 水平滾動 (mobile) */
-  -webkit-overflow-scrolling: touch;
-  scrollbar-width: none;
-}
-.tab-nav::-webkit-scrollbar { display: none; }
-
-.tab-btn {
-  background: rgba(255,255,255,.1);
-  color: rgba(255,255,255,.85);
-  border: 1px solid transparent;
-  border-radius: 6px;
-  padding: 5px 10px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.15s;
-  white-space: nowrap;
-  flex-shrink: 0;
-}
-
-.tab-btn.active {
-  background: rgba(255,255,255,.25);
-  color: white;
-  border-color: rgba(255,255,255,.3);
-}
-
-.tab-btn:hover:not(.active) {
-  background: rgba(255,255,255,.18);
-}
-
-@media (min-width: 480px) {
-  .header h1 { font-size: 17px; }
-  .tab-btn { font-size: 13px; padding: 6px 12px; }
-}
+/* 舊 .tab-nav 已搬到底部, 隱藏避免遺留 */
+.tab-nav { display: none !important; }
 
 .header .version {
   font-size: 11px;
@@ -197,11 +171,11 @@ html, body {
 }
 
 .header-btn {
-  background: rgba(255,255,255,.15);
+  background: var(--accent);
   color: white;
-  border: 1px solid rgba(255,255,255,.25);
-  /* 鎖正圓 — 不被 flex 容器拉寬/壓扁 */
-  flex: 0 0 36px;          /* basis 固定 36px, 不增不縮 */
+  border: 1px solid var(--accent-dark);
+  /* 圓形 — 鎖死正方形 */
+  flex: 0 0 36px;
   width: 36px;
   min-width: 36px;
   max-width: 36px;
@@ -218,7 +192,7 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 0;
-  margin: 0 0 0 4px;       /* 上/下/右 = 0, 左 4px (gap from tab nav) */
+  margin: 0;
   transition: background 0.15s, transform 0.15s;
   font-family: inherit;
   line-height: 1;
@@ -242,7 +216,8 @@ html, body {
   max-width: 600px;
   margin: 0 auto;
   padding: 12px;
-  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+  /* 留底部空間給 fixed bottom-nav (~64px) + iOS home indicator */
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 .card {
@@ -258,7 +233,7 @@ html, body {
   margin: 0 0 8px 0;
   font-size: 15px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--brown-deep);
   letter-spacing: 0.3px;
   border-left: 4px solid var(--accent);
   padding-left: 8px;
@@ -342,7 +317,7 @@ html, body {
 }
 
 .field select {
-  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%231F4E79' d='M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath fill='%236fa050' d='M6 8L0 2l1.4-1.4L6 5.2 10.6.6 12 2z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   padding-right: 28px;
@@ -1049,7 +1024,7 @@ html, body {
 }
 
 .food-modal-header {
-  background: linear-gradient(135deg, #1F4E79 0%, #15385A 100%);
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-dark) 100%);
   color: white;
   padding: 16px 20px;
   padding-top: calc(16px + env(safe-area-inset-top));
@@ -1705,14 +1680,14 @@ html, body {
   .print-only { display: block; }
 
   .print-header {
-    border-bottom: 2px solid #1F4E79;
+    border-bottom: 2px solid #6fa050;
     padding-bottom: 8pt;
     margin-bottom: 12pt;
   }
 
   .print-title {
     font-size: 16pt;
-    color: #1F4E79;
+    color: #6fa050;
     margin: 0 0 6pt 0;
   }
 
@@ -1725,7 +1700,7 @@ html, body {
   }
 
   .print-meta b {
-    color: #1F4E79;
+    color: #6fa050;
   }
 
   .container {
@@ -1743,7 +1718,7 @@ html, body {
   }
 
   .section-title {
-    color: #1F4E79 !important;
+    color: #6fa050 !important;
     font-size: 11pt;
     margin: 0 0 4pt 0;
   }
@@ -1761,7 +1736,7 @@ html, body {
     padding: 0 !important;
     width: auto !important;
     font-weight: 600;
-    color: #1F4E79 !important;
+    color: #6fa050 !important;
     font-size: 10pt;
   }
 
@@ -1791,7 +1766,7 @@ html, body {
 
   .energy-bar {
     background: #DDEBF7 !important;
-    color: #1F4E79 !important;
+    color: #6fa050 !important;
   }
 
   .footer {
@@ -1966,7 +1941,7 @@ html, body {
   padding: 1px 5px;
   border-radius: 3px;
 }
-.gen-food-tag.locked { background: #1F4E79; color: white; }
+.gen-food-tag.locked { background: #6fa050; color: white; }
 .gen-food-tag.user { background: #5B9BD5; color: white; }
 .gen-food-tag.auto { background: #ED7D31; color: white; }
 .gen-food-grams {
@@ -2059,4 +2034,67 @@ html, body {
 @media (min-width: 480px) {
   .gen-sel-row { grid-template-columns: 200px 1fr; }
   .gen-mini-dash-row { font-size: 12px; }
+}
+
+/* ============================================================
+   底部 tab bar (bottom-nav) — fixed bottom, iOS-style
+   ============================================================ */
+.bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  padding-bottom: var(--safe-bottom);
+  box-shadow: 0 -2px 8px rgba(70,50,30,.06);
+  z-index: 90;
+}
+
+.bottom-nav .tab-btn {
+  /* 覆蓋舊 .tab-btn (舊版 horizontal 樣式), 改 column 大圖示 */
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 4px 6px;
+  background: transparent;
+  border: none;
+  border-top: 3px solid transparent;
+  color: var(--text-dim);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.15s, border-color 0.15s, background 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.bottom-nav .tab-icon {
+  font-size: 22px;
+  line-height: 1;
+}
+
+.bottom-nav .tab-btn.active {
+  color: var(--accent-dark);
+  border-top-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.bottom-nav .tab-btn:active {
+  background: var(--accent-light);
+}
+
+@media (prefers-color-scheme: dark) {
+  .bottom-nav .tab-btn.active {
+    color: var(--accent);
+    background: var(--accent-light);
+  }
+}
+
+@media print {
+  .bottom-nav { display: none !important; }
 }

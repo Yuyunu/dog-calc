@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#1a3a2e">
+<meta name="theme-color" content="#93c572">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -21,11 +21,6 @@
 <!-- ============================================================ -->
 <header class="header">
   <h1>🐕 狗狗鮮食</h1>
-  <nav class="tab-nav">
-    <button id="tab-calc" class="tab-btn active" data-page="calculator" type="button">📊 計算</button>
-    <button id="tab-gen" class="tab-btn" data-page="generator" type="button">🍳 生成</button>
-    <button id="tab-diary" class="tab-btn" data-page="diary" type="button">📔 日誌</button>
-  </nav>
   <button id="btn-refresh" class="header-btn" type="button" title="重新整理（抓最新版本）" aria-label="重新整理">
     ↻
   </button>
@@ -542,6 +537,24 @@
     </div>
   </div>
 </div>
+
+<!-- ============================================================ -->
+<!-- 底部 tab bar (iOS-style fixed bottom nav)                     -->
+<!-- ============================================================ -->
+<nav class="bottom-nav" role="tablist">
+  <button id="tab-calc" class="tab-btn active" data-page="calculator" type="button" role="tab" aria-selected="true">
+    <span class="tab-icon">📊</span>
+    <span class="tab-label">計算</span>
+  </button>
+  <button id="tab-gen" class="tab-btn" data-page="generator" type="button" role="tab" aria-selected="false">
+    <span class="tab-icon">🍳</span>
+    <span class="tab-label">生成</span>
+  </button>
+  <button id="tab-diary" class="tab-btn" data-page="diary" type="button" role="tab" aria-selected="false">
+    <span class="tab-icon">📔</span>
+    <span class="tab-label">日誌</span>
+  </button>
+</nav>
 
 <script src="data.js"></script>
 <script src="app.js"></script>
