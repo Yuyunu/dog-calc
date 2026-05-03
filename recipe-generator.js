@@ -89,7 +89,8 @@
   function foodBucket(food) {
     const c = food.category || '';
     if (c === '肉類' || c === '牛肉' || c === '豬肉' || c === '雞肉' || c === '海鮮') return 'meat';
-    if (c === '蔬菜' || c === '蔬菜類' || c === '蔬果' || c === '水果' || c === '水果類') return 'veg';
+    if (c === '蔬菜' || c === '蔬菜類' || c === '蔬果') return 'veg';
+    if (c === '水果' || c === '水果類') return 'fruit';
     if (c === '蛋類') return 'egg';
     if (c === '穀物' || c === '澱粉類' || c === '根莖類') return 'grain';
     if (c.startsWith('補充品') || c.startsWith('油') || c === '種子') return 'supp';
@@ -497,7 +498,7 @@
 
     const portions = { ...lockedPortions };
     const autoAdded = new Set();
-    const autoAddedByCat = { meat: 0, veg: 0, egg: 0, grain: 0, supp: 0, other: 0 };
+    const autoAddedByCat = { meat: 0, veg: 0, fruit: 0, egg: 0, grain: 0, supp: 0, other: 0 };
     const useByCatCap = !!maxAutoByCat;
     const { targets, maxes } = buildTargets(standards, der);
 

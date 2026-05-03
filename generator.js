@@ -15,10 +15,10 @@
     mode: 'closed',          // 'closed' | 'open'
     maxAuto: 5,              // legacy global cap (保留以防舊 LS, 新邏輯用 maxAutoByCat)
     maxAutoByCat: {          // 開放模式各類自動補上限
-      meat: 2, veg: 2, egg: 1, grain: 1, supp: 3
+      meat: 2, veg: 2, fruit: 1, egg: 1, grain: 1, supp: 3
     },
     minAutoByCat: {          // 各類至少補幾樣 (強制) — 0 = 不強制
-      meat: 0, veg: 0, egg: 0, grain: 0, supp: 0
+      meat: 0, veg: 0, fruit: 0, egg: 0, grain: 0, supp: 0
     },
     selections: {},          // { foodName: { mode: 'lock'|'min'|'max'|'free', grams: number|null } }
     lastVariants: null
