@@ -15,6 +15,8 @@ const STATE = {
   weight: 11.5,
   activity: 1.2
 };
+// 讓其他 script (如 generator.js) 能透過 window.STATE 拿到
+window.STATE = STATE;
 
 const LS_KEY = 'dog_calc_v2_state';
 

@@ -472,8 +472,10 @@
   // Init
   // ============================================================
   function initGenerator() {
-    if (!window.STATE || !window.STATE.foods || !window.STATE.standards) {
-      // 等 app.js 載完
+    // STATE 是 app.js 的 top-level const,在 browser 不會自動掛到 window 上
+    // 用 typeof check 避免 ReferenceError, 直接讀取 lexical-scope 的 STATE
+    if (typeof STATE === 'undefined' || !STATE.foods || STATE.foods.length === 0 || !STATE.standards) {
+      // 等 app.js 載完資料
       setTimeout(initGenerator, 200);
       return;
     }
