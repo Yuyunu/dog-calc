@@ -2099,3 +2099,13 @@ html, body {
 @media print {
   .bottom-nav { display: none !important; }
 }
+
+/* hint 變體：橘黃警示 (生成頁總量提示) */
+.hint.hint-warn {
+  background: var(--warn-bg);
+  color: var(--warn-text);
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px;
+  margin-bottom: 10px;
+}

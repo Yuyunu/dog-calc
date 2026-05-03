@@ -175,7 +175,7 @@
         el('div', { class: 'gen-sel-controls' }, [
           el('input', {
             type: 'number',
-            placeholder: 'g',
+            placeholder: `${GEN.days} 天總量 g`,
             min: '0',
             step: '0.1',
             inputmode: 'decimal',
@@ -216,7 +216,7 @@
   }
 
   // ============================================================
-  // Render: kcal hint
+  // Render: kcal hint + 總量 hint
   // ============================================================
   function renderKcalHint() {
     const w = STATE.weight, a = STATE.activity;
@@ -225,17 +225,33 @@
       ? GEN.targetKcal : der;
     const total = target * GEN.days;
     const hint = document.getElementById('gen-kcal-hint');
-    if (!hint) return;
-    hint.textContent = `DER = ${der.toFixed(0)} kcal/天 · ` +
-      `目標 ${target.toFixed(0)} kcal/天 × ${GEN.days} 天 = 總 ${total.toFixed(0)} kcal`;
+    if (hint) {
+      hint.textContent = `DER = ${der.toFixed(0)} kcal/天 · ` +
+        `目標 ${target.toFixed(0)} kcal/天 × ${GEN.days} 天 = 總 ${total.toFixed(0)} kcal`;
+    }
+    // 總量提示 (跟天數聯動)
+    const totalHint = document.getElementById('gen-total-hint');
+    if (totalHint) {
+      totalHint.innerHTML = `⚠️ 以下克數為 <b>${GEN.days} 天總量</b>（每日量 = 總量 ÷ 天數）`;
+    }
+    // 已選食材的 placeholder 也聯動
+    document.querySelectorAll('.gen-sel-row input[type="number"]').forEach(inp => {
+      inp.placeholder = `${GEN.days} 天總量 g`;
+    });
   }
 
   // ============================================================
   // Generate handler
   // ============================================================
   function handleGenerate() {
+    const days = Math.max(1, GEN.days || 1);
+    // 使用者輸入的克數 = N 天總量 → 換算成每日量再丟進演算法
     const sels = Object.entries(GEN.selections).map(([name, s]) => ({
-      foodName: name, mode: s.mode, grams: s.grams
+      foodName: name,
+      mode: s.mode,
+      grams: (s.grams != null && isFinite(s.grams))
+        ? s.grams / days     // 總量 → 每日量
+        : null
     }));
     if (sels.length === 0) {
       alert('請至少勾選 1 樣食材');
@@ -251,8 +267,8 @@
       standards: STATE.standards,
       weight: w,
       activity: a,
-      targetKcal: targetKcal,
-      selections: sels,
+      targetKcal: targetKcal,    // 每日 kcal
+      selections: sels,           // 每日量
       mode: GEN.mode,
       maxAuto: GEN.maxAuto,
       numVariants: GEN.mode === 'open' ? 3 : 2
@@ -263,13 +279,13 @@
       return;
     }
     GEN.lastVariants = out.variants;
-    renderResults(out.variants, targetKcal);
+    renderResults(out.variants, targetKcal, days);
   }
 
   // ============================================================
   // Render: 結果 (1-3 variants)
   // ============================================================
-  function renderResults(variants, targetKcal) {
+  function renderResults(variants, targetKcal, days) {
     const wrap = document.getElementById('gen-results');
     wrap.innerHTML = '';
     if (!variants || variants.length === 0) {
@@ -277,29 +293,38 @@
       return;
     }
     variants.forEach((v, i) => {
-      wrap.appendChild(renderVariant(v, i, targetKcal));
+      wrap.appendChild(renderVariant(v, i, targetKcal, days));
     });
     // 卷軸到結果區
     setTimeout(() => wrap.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
   }
 
-  function renderVariant(v, idx, targetKcal) {
-    // foods
+  function renderVariant(v, idx, targetKcal, days) {
+    days = days || 1;
+    // foods — 同時顯示「每日」和「N 天總量」
     const foodsRows = v.foods.map(item => {
       const tagText = item.source === 'locked' ? '🔒鎖定'
         : item.source === 'auto' ? '✨自動補' : '勾選';
       const tagClass = item.source === 'locked' ? 'locked'
         : item.source === 'auto' ? 'auto' : 'user';
-      const portionText = item.food.unit && item.food.unit !== 'g'
-        ? `${item.portion.toFixed(1)} ${item.food.unit}`
-        : '';
+      const dailyG = item.grams || 0;
+      const totalG = dailyG * days;
+      // 顯示順序: 每日量 (主) · 總量 (次)
+      let portionDetail;
+      if (item.food.unit && item.food.unit !== 'g') {
+        const dailyP = item.portion;
+        const totalP = dailyP * days;
+        portionDetail = `每日 ${dailyP.toFixed(1)} ${item.food.unit} (${dailyG.toFixed(1)}g) · 總量 ${totalP.toFixed(1)} ${item.food.unit} (${totalG.toFixed(1)}g)`;
+      } else {
+        portionDetail = `每日 ${dailyG.toFixed(1)}g · 總量 ${totalG.toFixed(1)}g`;
+      }
       return el('div', { class: 'gen-food-row' }, [
         el('div', { class: 'gen-food-name' }, [
           el('span', { class: 'gen-food-tag ' + tagClass }, tagText),
           item.food.name
         ]),
-        el('div', { class: 'gen-food-grams' }, fmtN(item.grams, 1) + ' g'),
-        el('div', { class: 'gen-food-portion' }, portionText)
+        el('div', { class: 'gen-food-grams' }, fmtN(dailyG, 1) + ' g/天'),
+        el('div', { class: 'gen-food-portion' }, `總 ${fmtN(totalG, 0)}g`)
       ]);
     });
 
@@ -327,8 +352,8 @@
     const totalGrams = v.totals._totalGrams || 0;
     const totalsLine = el('div', { class: 'gen-variant-totals' }, [
       el('span', {}, `每日 ${totalGrams.toFixed(0)} g`),
-      el('span', {}, `· ${v.kcal.toFixed(0)} kcal`),
-      el('span', {}, `· 共 ${(totalGrams * GEN.days).toFixed(0)} g (${GEN.days} 天)`),
+      el('span', {}, `· ${v.kcal.toFixed(0)} kcal/天`),
+      el('span', {}, `· ${days} 天共 ${(totalGrams * days).toFixed(0)} g`),
     ]);
 
     // 警示
@@ -380,9 +405,10 @@
   // 採用食譜 → 帶入計算器
   // ============================================================
   function adoptVariant(v) {
-    if (!confirm('將此食譜帶入「📊 計算器」分頁？\n會覆蓋目前計算器的食材清單。')) return;
+    if (!confirm('將此食譜的「每日量」帶入「📊 計算器」分頁？\n（計算器顯示每日營養達標，會覆蓋目前清單）')) return;
     STATE.recipe = {};
     for (const item of v.foods) {
+      // 計算器 = 每日量 (跟生成 algo 內部一致)
       STATE.recipe[item.food.name] = {
         food: item.food,
         portion: Math.round((item.portion || 0) * 10) / 10
@@ -399,18 +425,26 @@
   let CURRENT_VARIANT = null;
   function openSaveModal(v) {
     CURRENT_VARIANT = v;
+    const days = GEN.days || 1;
     const lines = v.foods.map(item => {
-      const portionText = item.food.unit && item.food.unit !== 'g'
-        ? `${item.portion.toFixed(1)} ${item.food.unit}`
-        : `${item.grams.toFixed(0)} g`;
-      const tag = item.source === 'auto' ? ' ✨' : '';
-      return `• ${item.food.name} ${portionText}${tag}`;
+      const dailyG = item.grams || 0;
+      const totalG = dailyG * days;
+      let line;
+      if (item.food.unit && item.food.unit !== 'g') {
+        const dailyP = item.portion;
+        const totalP = dailyP * days;
+        line = `• ${item.food.name} 每日 ${dailyP.toFixed(1)} ${item.food.unit} (${dailyG.toFixed(1)}g) · 總 ${totalP.toFixed(1)} ${item.food.unit} (${totalG.toFixed(0)}g)`;
+      } else {
+        line = `• ${item.food.name} 每日 ${dailyG.toFixed(1)}g · 總 ${totalG.toFixed(0)}g`;
+      }
+      if (item.source === 'auto') line += ' ✨';
+      return line;
     });
     const today = new Date();
     const ds = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
     document.getElementById('gen-save-name').value = `生成配方 ${ds} · ${v.label}`;
     document.getElementById('gen-save-summary').value =
-      `[食譜生成・${v.label}] · ${v.kcal.toFixed(0)} kcal/天 · ${GEN.days} 天份\n` +
+      `[食譜生成・${v.label}] · ${v.kcal.toFixed(0)} kcal/天 · ${days} 天份\n` +
       lines.join('\n');
     document.getElementById('gen-save-modal').hidden = false;
     document.body.style.overflow = 'hidden';
@@ -424,36 +458,38 @@
     if (!CURRENT_VARIANT) return;
     const name = document.getElementById('gen-save-name').value.trim() || '未命名生成食譜';
     const summary = document.getElementById('gen-save-summary').value.trim();
+    const days = GEN.days || 1;
+    // 食譜庫存「每日量」 (跟日誌頁原本格式相容)
+    // 額外 metadata 存 days_designed_for + total_grams_designed (未來日曆 / 總量計算用)
     const ingredients = {};
     for (const item of CURRENT_VARIANT.foods) {
       const portion = Math.round((item.portion || 0) * 10) / 10;
       if (portion > 0) ingredients[item.food.name] = portion;
     }
+    const totalGramsDaily = CURRENT_VARIANT.totals._totalGrams || 0;
+    const recipeObj = {
+      id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
+      name, ingredients, summary,
+      created_at: new Date().toISOString().slice(0, 10),
+      source: 'generator',
+      days_designed_for: days,
+      total_grams_per_day: Math.round(totalGramsDaily * 10) / 10,
+      total_grams_designed: Math.round(totalGramsDaily * days * 10) / 10
+    };
     if (!window.DIARY_STATE) {
-      // diary not loaded — fallback: write LS directly under same key
       try {
         const raw = localStorage.getItem('dog_calc_v2_diary');
         const data = raw ? JSON.parse(raw) : { saved_recipes: [], feeding_log: [], events: [] };
         data.saved_recipes = data.saved_recipes || [];
-        data.saved_recipes.push({
-          id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-          name, ingredients, summary,
-          created_at: new Date().toISOString().slice(0, 10),
-          source: 'generator'
-        });
+        data.saved_recipes.push(recipeObj);
         localStorage.setItem('dog_calc_v2_diary', JSON.stringify(data));
       } catch (e) { alert('儲存失敗：' + e.message); return; }
     } else {
-      window.DIARY_STATE.saved_recipes.push({
-        id: Date.now().toString(36) + Math.random().toString(36).slice(2, 7),
-        name, ingredients, summary,
-        created_at: new Date().toISOString().slice(0, 10),
-        source: 'generator'
-      });
+      window.DIARY_STATE.saved_recipes.push(recipeObj);
       if (typeof saveDiary === 'function') saveDiary();
     }
     closeSaveModal();
-    alert('✓ 已儲存到食譜庫');
+    alert('✓ 已儲存到食譜庫 (含每日量 + ' + days + ' 天總量 metadata)');
   }
 
   // ============================================================
@@ -489,7 +525,7 @@
       if (isFinite(v) && v >= 1 && v <= 30) {
         GEN.days = v;
         saveGen();
-        renderKcalHint();
+        renderKcalHint();      // 同步更新總量提示 + placeholder
       }
     });
 

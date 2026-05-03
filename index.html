@@ -261,10 +261,11 @@
       <h2 class="section-title">已選食材設定</h2>
       <button id="gen-clear-all" class="btn btn-danger" type="button">清除</button>
     </div>
+    <p class="hint hint-warn" id="gen-total-hint">⚠️ 以下克數為 <b>7 天總量</b>（每日量 = 總量 ÷ 天數）</p>
     <div id="gen-selected-list" class="gen-selected-list">
       <p class="empty-state">尚未選擇任何食材</p>
     </div>
-    <p class="hint">克數留空 = 由演算法決定 · 鎖定模式：鎖定份量/最少這個量/最多這個量/自由調整</p>
+    <p class="hint">克數留空 = 由演算法決定 · 鎖定模式：鎖定/最少/最多/自由（皆作用於總量）</p>
   </section>
 
   <!-- 5. 生成按鈕 -->
