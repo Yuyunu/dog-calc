@@ -153,6 +153,25 @@
     return food[key] || 0;
   }
 
+  // 檢查加入這個食材一個 step 後, 比例 (numKey/denKey) 會不會超過 maxRatio
+  // 若會超過 AND 比目前更糟, 回傳 true (應該跳過)
+  function wouldExceedRatio(food, step, totals, numKey, denKey, maxRatio) {
+    const numCur = getProvided(totals, numKey);
+    const denCur = getProvided(totals, denKey);
+    const numAdd = getFoodNutrient(food, numKey) * step;
+    const denAdd = getFoodNutrient(food, denKey) * step;
+    const numFuture = numCur + numAdd;
+    const denFuture = denCur + denAdd;
+    // 沒有分母 → 無法判斷比例, 允許 (greedy 會逐步補)
+    if (denFuture <= 0) return false;
+    const ratioFuture = numFuture / denFuture;
+    if (ratioFuture <= maxRatio) return false;
+    // 比例會超過 max — 但若這次添加是「拉低比例」則允許 (例如目前 ratio=3, 加 P 後 ratio=2.5)
+    const ratioCur = denCur > 0 ? numCur / denCur : Infinity;
+    if (ratioFuture < ratioCur) return false;
+    return true;
+  }
+
   function computeDeficits(totals, targets) {
     const deficits = {};
     for (const [k, target] of Object.entries(targets)) {
@@ -569,9 +588,7 @@
         }
         if (!touchedDeficit) continue;
 
-        // 超 max 硬限制: 任何營養素超過 AAFCO max 直接 SKIP (不允許這次加)
-        // 鎖定食材已經 init 進 portions, 不會走這分支;
-        // 自動補食材若會把某營養超標 → 不能選
+        // 超 max 硬限制: 任何營養素超過 AAFCO max 直接 SKIP
         let wouldExceedMax = false;
         for (const [k, mx] of Object.entries(maxes)) {
           const adds = getFoodNutrient(food, k) * step;
@@ -580,6 +597,12 @@
           if (future > mx) { wouldExceedMax = true; break; }
         }
         if (wouldExceedMax) continue;
+        // 鈣磷比硬限制: 不能讓 Ca/P > 2.0 (除非加這個食材會降低比例)
+        if (!wouldExceedRatio(food, step, totals, 'ca_mg', 'p_mg', 2.0)) {
+          // 通過
+        } else {
+          continue;
+        }
 
         if (proteinBias && proteinBias.has(food.category)) score *= 1.25;
 
@@ -619,19 +642,18 @@
     }
 
     // === 強制納入使用者勾選的食材 (post-pass) ===
-    // 任何被勾選但 greedy 沒給份量的食材, 至少加 1 step
-    // 使用者明確選擇 → max 限制放寬到 +5% (避免微量加成被擋掉)
-    const USER_FORCE_TOLERANCE = 1.05;
+    // 任何被勾選但 greedy 沒給份量的食材, 至少加 1 step (前提是不超 max + Ca:P 不超)
+    const USER_FORCE_TOLERANCE = 1.00;     // 0% 容忍 (使用者要求嚴格)
     for (const food of candidatePool) {
       if (!userSelectedSet.has(food.name)) continue;
       if ((portions[food.name] || 0) > 0) continue;
       const step = stepGramsFor(food);
       const limit = maxGramsGetter(food, kcalCap);
-      if (step > limit) continue;     // max=0 之類的情況 → 跳過
+      if (step > limit) continue;
       const totals = calcTotals(portions, foodMap);
       const kcalAdd = (food.kcal || 0) * step;
       if ((totals.kcal || 0) + kcalAdd > kcalCap * 1.10) continue;
-      // 強制納入仍尊重 max, 但給 5% 容忍 (使用者明確要這個食材)
+      // 不能讓 force-add 推某營養超 max
       let exceeds = false;
       for (const [k, mx] of Object.entries(maxes)) {
         const adds = getFoodNutrient(food, k) * step;
@@ -639,6 +661,8 @@
         if (getProvided(totals, k) + adds > mx * USER_FORCE_TOLERANCE) { exceeds = true; break; }
       }
       if (exceeds) continue;
+      // Ca:P 比也不能超
+      if (wouldExceedRatio(food, step, totals, 'ca_mg', 'p_mg', 2.0)) continue;
       portions[food.name] = step;
     }
 
@@ -671,6 +695,8 @@
             if (getProvided(totals, k) + adds > mx) { exceeds = true; break; }
           }
           if (exceeds) continue;
+          // Ca:P 比也不能超
+          if (wouldExceedRatio(f, step, totals, 'ca_mg', 'p_mg', 2.0)) continue;
           if (kcalAdd < bestKcal) { bestKcal = kcalAdd; pick = f; }
         }
         if (!pick) break;
