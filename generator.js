@@ -13,7 +13,10 @@
     days: 7,
     targetKcal: null,        // null = 跟 DER 走
     mode: 'closed',          // 'closed' | 'open'
-    maxAuto: 5,
+    maxAuto: 5,              // legacy global cap (保留以防舊 LS, 新邏輯用 maxAutoByCat)
+    maxAutoByCat: {          // 開放模式各類自動補上限
+      meat: 2, veg: 2, egg: 1, grain: 1, supp: 3
+    },
     selections: {},          // { foodName: { mode: 'lock'|'min'|'max'|'free', grams: number|null } }
     lastVariants: null
   };
@@ -28,6 +31,7 @@
         targetKcal: GEN.targetKcal,
         mode: GEN.mode,
         maxAuto: GEN.maxAuto,
+        maxAutoByCat: GEN.maxAutoByCat,
         selections: GEN.selections
       }));
     } catch (e) { console.warn('gen save fail', e); }
@@ -41,6 +45,9 @@
       if (d.targetKcal !== undefined) GEN.targetKcal = d.targetKcal;
       if (d.mode) GEN.mode = d.mode;
       if (d.maxAuto != null) GEN.maxAuto = d.maxAuto;
+      if (d.maxAutoByCat) {
+        Object.assign(GEN.maxAutoByCat, d.maxAutoByCat);
+      }
       if (d.selections) GEN.selections = d.selections;
     } catch (e) { console.warn('gen load fail', e); }
   }
@@ -288,7 +295,8 @@
       targetKcal: targetKcal,    // 每日 kcal
       selections: sels,           // 每日量
       mode: GEN.mode,
-      maxAuto: GEN.maxAuto,
+      maxAutoByCat: GEN.maxAutoByCat,  // 各類自動補上限
+      maxAuto: GEN.maxAuto,            // legacy fallback
       numVariants: GEN.mode === 'open' ? 3 : 2
     });
 
@@ -804,15 +812,20 @@
     });
     document.getElementById('gen-maxauto-wrap').hidden = (GEN.mode !== 'open');
 
-    // 自動補上限 slider
-    const slider = document.getElementById('gen-maxauto');
-    const sliderVal = document.getElementById('gen-maxauto-val');
-    slider.value = GEN.maxAuto;
-    sliderVal.textContent = GEN.maxAuto;
-    slider.addEventListener('input', e => {
-      GEN.maxAuto = parseInt(e.target.value, 10) || 5;
-      sliderVal.textContent = GEN.maxAuto;
-      saveGen();
+    // 自動補上限 — 各類 slider
+    document.querySelectorAll('.gen-cat-slider').forEach(slider => {
+      const cat = slider.dataset.cat;
+      const valEl = document.querySelector(`[data-cat-val="${cat}"]`);
+      if (GEN.maxAutoByCat[cat] != null) {
+        slider.value = GEN.maxAutoByCat[cat];
+        if (valEl) valEl.textContent = GEN.maxAutoByCat[cat];
+      }
+      slider.addEventListener('input', e => {
+        const n = parseInt(e.target.value, 10);
+        GEN.maxAutoByCat[cat] = isFinite(n) ? n : 0;
+        if (valEl) valEl.textContent = GEN.maxAutoByCat[cat];
+        saveGen();
+      });
     });
 
     // 生成

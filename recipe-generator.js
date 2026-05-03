@@ -85,6 +85,17 @@
     return true;
   }
 
+  // 把食材歸入一個「自動補上限」分桶
+  function foodBucket(food) {
+    const c = food.category || '';
+    if (c === '肉類' || c === '牛肉' || c === '豬肉' || c === '雞肉' || c === '海鮮') return 'meat';
+    if (c === '蔬菜' || c === '蔬菜類' || c === '蔬果' || c === '水果' || c === '水果類') return 'veg';
+    if (c === '蛋類') return 'egg';
+    if (c === '穀物' || c === '澱粉類' || c === '根莖類') return 'grain';
+    if (c.startsWith('補充品') || c.startsWith('油') || c === '種子') return 'supp';
+    return 'other';
+  }
+
   // ============================================================
   // 計算某 portions {foodName: grams} 的總營養
   // ============================================================
@@ -333,7 +344,7 @@
   function generate(opts) {
     const {
       foods, standards, weight, activity, targetKcal,
-      selections, mode, maxAuto, numVariants
+      selections, mode, maxAuto, maxAutoByCat, numVariants
     } = opts;
 
     if (!selections || selections.length === 0) {
@@ -432,6 +443,7 @@
         candidatePool: candidatePoolWithLimit,
         userSelectedSet,
         maxAuto: mode === 'closed' ? 0 : maxAuto,
+        maxAutoByCat: mode === 'closed' ? null : maxAutoByCat,  // open 模式才用
         proteinBias,
         weight,
         maxGramsGetter: _maxGrams
@@ -479,11 +491,13 @@
     const {
       foodMap, standards, der, kcalCap,
       lockedPortions, candidatePool, userSelectedSet,
-      maxAuto, proteinBias, weight, maxGramsGetter
+      maxAuto, maxAutoByCat, proteinBias, weight, maxGramsGetter
     } = opts;
 
     const portions = { ...lockedPortions };
     const autoAdded = new Set();
+    const autoAddedByCat = { meat: 0, veg: 0, egg: 0, grain: 0, supp: 0, other: 0 };
+    const useByCatCap = !!maxAutoByCat;
     const { targets, maxes } = buildTargets(standards, der);
 
     targets.taurine_g = 8.7 * weight / 1000;
@@ -506,8 +520,16 @@
 
       for (const food of candidatePool) {
         if (!userSelectedSet.has(food.name)) {
-          if (maxAuto <= 0) continue;
-          if (autoAdded.size >= maxAuto && !autoAdded.has(food.name)) continue;
+          // 自動補上限檢查 (per-category 或 global)
+          if (useByCatCap) {
+            const bucket = foodBucket(food);
+            const cap = maxAutoByCat[bucket] != null ? maxAutoByCat[bucket] : 0;
+            if (cap <= 0) continue;
+            if (autoAddedByCat[bucket] >= cap && !autoAdded.has(food.name)) continue;
+          } else {
+            if (maxAuto <= 0) continue;
+            if (autoAdded.size >= maxAuto && !autoAdded.has(food.name)) continue;
+          }
         }
 
         const step = stepGramsFor(food);
@@ -556,10 +578,17 @@
 
       if (!bestFood) break;
       portions[bestFood.name] = (portions[bestFood.name] || 0) + bestStep;
-      if (!userSelectedSet.has(bestFood.name)) autoAdded.add(bestFood.name);
+      if (!userSelectedSet.has(bestFood.name)) {
+        if (!autoAdded.has(bestFood.name)) {
+          // 第一次加這個食材 → 增加對應分桶計數
+          const bucket = foodBucket(bestFood);
+          autoAddedByCat[bucket] = (autoAddedByCat[bucket] || 0) + 1;
+        }
+        autoAdded.add(bestFood.name);
+      }
     }
 
-    return { portions, autoAdded };
+    return { portions, autoAdded, autoAddedByCat };
   }
 
   // ============================================================

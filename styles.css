@@ -2024,7 +2024,8 @@ html, body {
 .gen-variant-actions .btn { flex: 1; }
 
 @media (min-width: 480px) {
-  .gen-sel-row { grid-template-columns: 200px 1fr; }
+  /* 桌機/平板上: 食材名給多一點空間, input 也加寬 */
+  .gen-sel-row { grid-template-columns: minmax(0, 1.3fr) 130px 80px 28px; }
   .gen-mini-dash-row { font-size: 12px; }
 }
 
@@ -2190,3 +2191,41 @@ html, body {
 .gen-full-section .dash-section-header { font-size: 11px; padding: 4px 8px; }
 .gen-full-section .dm-grid { font-size: 12px; }
 .gen-full-section .ratio-row { font-size: 12px; }
+
+/* gen 各類自動補 slider 群 */
+.gen-cat-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 6px;
+}
+.gen-cat-row {
+  display: grid;
+  grid-template-columns: 110px 1fr 28px;
+  gap: 8px;
+  align-items: center;
+  padding: 4px 8px;
+  background: var(--input);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border);
+}
+.gen-cat-label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text);
+  white-space: nowrap;
+}
+.gen-cat-slider {
+  width: 100%;
+  accent-color: var(--accent);
+}
+.gen-cat-val {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--accent-dark);
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+@media (prefers-color-scheme: dark) {
+  .gen-cat-val { color: var(--accent); }
+}
