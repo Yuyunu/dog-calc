@@ -191,8 +191,9 @@
       const gpu = food.gramsPerUnit || 1;
       const stepStr = (unit === '顆' || unit === '包' || unit === '匙') ? '0.5' : '0.1';
       // 一行: [食材名] [input+unit] [模式] [✕]
+      const isLong = name.length > 7;
       const row = el('div', { class: 'gen-sel-row' }, [
-        el('span', { class: 'gen-sel-name' }, name),
+        el('span', { class: 'gen-sel-name' + (isLong ? ' long' : '') }, name),
         el('div', { class: 'gen-sel-input-wrap' }, [
           el('input', {
             type: 'number',
