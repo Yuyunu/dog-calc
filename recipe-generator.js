@@ -424,6 +424,9 @@
       return f;
     });
 
+    // 追蹤跨變體的「自動補食材使用次數」, 後續變體偏向選未用過的 (只算 auto, 不算 user 勾選)
+    const autoFoodUsage = {};
+
     // monkey-patch maxGramsFor to honour _maxLockGrams
     const _origMaxGrams = maxGramsFor;
     function _maxGrams(food, cap) {
@@ -450,8 +453,14 @@
         minAutoByCat: mode === 'closed' ? null : minAutoByCat,
         proteinBias,
         weight,
-        maxGramsGetter: _maxGrams
+        maxGramsGetter: _maxGrams,
+        autoFoodUsage           // 跨變體變化壓力
       });
+
+      // 把這變體用到的「自動補」食材累計到 usage map (給後續變體挑不一樣的)
+      for (const name of result.autoAdded) {
+        autoFoodUsage[name] = (autoFoodUsage[name] || 0) + 1;
+      }
 
       const totals = calcTotals(result.portions, foodMap);
       const ach = calcAchievement(totals, standards, weight, der);
@@ -495,7 +504,8 @@
     const {
       foodMap, standards, der, kcalCap,
       lockedPortions, candidatePool, userSelectedSet,
-      maxAuto, maxAutoByCat, minAutoByCat, proteinBias, weight, maxGramsGetter
+      maxAuto, maxAutoByCat, minAutoByCat, proteinBias, weight, maxGramsGetter,
+      autoFoodUsage
     } = opts;
 
     const portions = { ...lockedPortions };
@@ -570,6 +580,13 @@
         if (wouldExceedMax) continue;
 
         if (proteinBias && proteinBias.has(food.category)) score *= 1.25;
+
+        // 跨變體變化壓力: 之前變體用過的自動補食材, 在此變體 score ×0.6, 用過 2 次 ×0.42
+        // (只對「自動補」食材生效, 使用者勾選的不打折)
+        if (autoFoodUsage && !userSelectedSet.has(food.name)) {
+          const usedCount = autoFoodUsage[food.name] || 0;
+          if (usedCount > 0) score *= Math.pow(0.65, usedCount);
+        }
 
         // 「最少」分桶 bonus — 若該類仍未滿 minAutoByCat → 給大量 score 偏好
         if (minAutoByCat && !userSelectedSet.has(food.name)) {
