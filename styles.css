@@ -142,15 +142,21 @@ html, body {
   font-weight: 600;
   letter-spacing: 0.5px;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tab-nav {
   display: flex;
   gap: 4px;
-  flex: 1;
+  flex: 1 1 auto;
+  min-width: 0;            /* 允許 tab-nav 縮短，避免擠壓右側 refresh 按鈕 */
   margin: 0 6px;
   justify-content: center;
+  overflow-x: auto;        /* 萬一還是塞不下 → 水平滾動 (mobile) */
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
 }
+.tab-nav::-webkit-scrollbar { display: none; }
 
 .tab-btn {
   background: rgba(255,255,255,.1);
@@ -164,6 +170,7 @@ html, body {
   font-family: inherit;
   transition: all 0.15s;
   white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .tab-btn.active {
@@ -196,6 +203,7 @@ html, body {
   border-radius: 50%;
   width: 32px;
   height: 32px;
+  flex-shrink: 0;          /* 永遠不被 tab 列擠出畫面 */
   font-size: 18px;
   font-weight: 700;
   cursor: pointer;
