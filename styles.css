@@ -426,19 +426,20 @@ html, body {
   box-shadow: 0 2px 4px rgba(0,0,0,.12);
 }
 
-/* 排除狀態 — 灰底 + 紅 ✗ + 刪除線 */
+/* 排除狀態 — 紅底 + ✗ + 刪除線 (明顯) */
 .chip.excluded {
-  background: var(--ref-bg);
-  border-color: var(--bad-border);
-  border-style: dashed;
-  color: var(--bad-text);
+  background: var(--bad-bg) !important;
+  border-color: var(--bad-text) !important;
+  border-style: dashed !important;
+  color: var(--bad-text) !important;
   text-decoration: line-through;
-  opacity: 0.7;
+  opacity: 0.85;
 }
 .chip.excluded .chip-icon {
-  color: var(--bad-text);
+  color: var(--bad-text) !important;
   text-decoration: none;
   display: inline-block;
+  font-weight: 900;
 }
 
 .chip .chip-icon {
