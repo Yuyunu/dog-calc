@@ -200,10 +200,17 @@ html, body {
   background: rgba(255,255,255,.15);
   color: white;
   border: 1px solid rgba(255,255,255,.25);
+  /* 鎖正圓 — 不被 flex 容器拉寬/壓扁 */
+  flex: 0 0 36px;          /* basis 固定 36px, 不增不縮 */
+  width: 36px;
+  min-width: 36px;
+  max-width: 36px;
+  height: 36px;
+  min-height: 36px;
+  max-height: 36px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  flex-shrink: 0;          /* 永遠不被 tab 列擠出畫面 */
+  box-sizing: border-box;
   font-size: 18px;
   font-weight: 700;
   cursor: pointer;
@@ -211,8 +218,8 @@ html, body {
   align-items: center;
   justify-content: center;
   padding: 0;
-  margin-left: 4px;
-  transition: all 0.15s;
+  margin: 0 0 0 4px;       /* 上/下/右 = 0, 左 4px (gap from tab nav) */
+  transition: background 0.15s, transform 0.15s;
   font-family: inherit;
   line-height: 1;
   -webkit-tap-highlight-color: transparent;
