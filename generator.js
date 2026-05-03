@@ -144,11 +144,24 @@
     if (GEN.selections[name]) {
       delete GEN.selections[name];
     } else {
-      GEN.selections[name] = { mode: 'free', grams: null };
+      // portion = 食材原生單位的「N 天總量」(g/顆/包/匙) — null 表示由 algo 決定
+      GEN.selections[name] = { mode: 'free', portion: null };
     }
     saveGen();
     renderPicker();
     renderSelectedList();
+  }
+
+  // 從舊 LS 格式 (s.grams) 轉到新格式 (s.portion in native unit)
+  function migrateSelections() {
+    for (const [name, sel] of Object.entries(GEN.selections)) {
+      if (sel.grams != null && sel.portion == null) {
+        const food = STATE.foods.find(f => f.name === name);
+        const gpu = (food && food.gramsPerUnit) || 1;
+        sel.portion = sel.grams / gpu;
+      }
+      delete sel.grams;
+    }
   }
 
   // ============================================================
@@ -167,30 +180,50 @@
       const food = STATE.foods.find(f => f.name === name);
       if (!food) continue;
       const sel = GEN.selections[name];
+      const unit = food.unit || 'g';
+      const gpu = food.gramsPerUnit || 1;
+      const stepStr = (unit === '顆' || unit === '包' || unit === '匙') ? '0.5' : '0.1';
       const row = el('div', { class: 'gen-sel-row' }, [
         el('div', { class: 'gen-sel-name' }, [
           el('span', {}, name),
           el('span', { class: 'gen-sel-name-cat' }, food.category || '')
         ]),
         el('div', { class: 'gen-sel-controls' }, [
-          el('input', {
-            type: 'number',
-            placeholder: `${GEN.days} 天總量 g`,
-            min: '0',
-            step: '0.1',
-            inputmode: 'decimal',
-            value: sel.grams == null ? '' : sel.grams,
-            oninput: e => {
-              const v = e.target.value;
-              if (v === '' || v == null) {
-                sel.grams = null;
-              } else {
-                const n = parseFloat(v);
-                sel.grams = isFinite(n) && n >= 0 ? n : null;
+          el('div', { class: 'gen-sel-input-wrap' }, [
+            el('input', {
+              type: 'number',
+              placeholder: `${GEN.days}天總量`,
+              min: '0',
+              step: stepStr,
+              inputmode: 'decimal',
+              value: sel.portion == null ? '' : sel.portion,
+              oninput: e => {
+                const v = e.target.value;
+                if (v === '' || v == null) {
+                  sel.portion = null;
+                } else {
+                  const n = parseFloat(v);
+                  sel.portion = isFinite(n) && n >= 0 ? n : null;
+                }
+                saveGen();
+                // 即時更新 g 換算提示
+                const eqEl = e.target.parentElement.querySelector('.gen-sel-eq');
+                if (eqEl) {
+                  if (sel.portion != null && unit !== 'g') {
+                    eqEl.textContent = '= ' + (sel.portion * gpu).toFixed(1) + 'g';
+                  } else {
+                    eqEl.textContent = '';
+                  }
+                }
               }
-              saveGen();
-            }
-          }),
+            }),
+            el('span', { class: 'gen-sel-unit' }, unit),
+            // 對於 顆/包/匙 食材, 顯示對應 g 換算讓使用者不混淆
+            unit !== 'g'
+              ? el('span', { class: 'gen-sel-eq' },
+                  sel.portion != null ? '= ' + (sel.portion * gpu).toFixed(1) + 'g' : '')
+              : null,
+          ]),
           el('select', {
             onchange: e => { sel.mode = e.target.value; saveGen(); }
           }, [
@@ -234,9 +267,9 @@
     if (totalHint) {
       totalHint.innerHTML = `⚠️ 以下克數為 <b>${GEN.days} 天總量</b>（每日量 = 總量 ÷ 天數）`;
     }
-    // 已選食材的 placeholder 也聯動
+    // 已選食材的 placeholder 也聯動 (跟 unit 連動)
     document.querySelectorAll('.gen-sel-row input[type="number"]').forEach(inp => {
-      inp.placeholder = `${GEN.days} 天總量 g`;
+      inp.placeholder = `${GEN.days}天總量`;
     });
   }
 
@@ -245,14 +278,16 @@
   // ============================================================
   function handleGenerate() {
     const days = Math.max(1, GEN.days || 1);
-    // 使用者輸入的克數 = N 天總量 → 換算成每日量再丟進演算法
-    const sels = Object.entries(GEN.selections).map(([name, s]) => ({
-      foodName: name,
-      mode: s.mode,
-      grams: (s.grams != null && isFinite(s.grams))
-        ? s.grams / days     // 總量 → 每日量
-        : null
-    }));
+    // 使用者輸入 = N 天總量 (in food's native unit, e.g. 5 顆 / 300 g)
+    // 轉換: portion × gramsPerUnit = 總克數 → / days = 每日克數
+    const sels = Object.entries(GEN.selections).map(([name, s]) => {
+      const food = STATE.foods.find(f => f.name === name);
+      const gpu = (food && food.gramsPerUnit) || 1;
+      const dailyG = (s.portion != null && isFinite(s.portion))
+        ? (s.portion * gpu) / days
+        : null;
+      return { foodName: name, mode: s.mode, grams: dailyG };
+    });
     if (sels.length === 0) {
       alert('請至少勾選 1 樣食材');
       return;
@@ -280,6 +315,81 @@
     }
     GEN.lastVariants = out.variants;
     renderResults(out.variants, targetKcal, days);
+  }
+
+  // ============================================================
+  // 全營養儀表板分組 (跟計算器頁同樣 5 大分區)
+  // ============================================================
+  const NUTRIENT_SECTION = {
+    kcal: 'macro', protein: 'macro', fat: 'macro', carb: 'macro',
+    fiber: 'macro', omega6_g: 'macro', omega3_g: 'macro', epa_dha: 'macro',
+    ca_mg: 'mineral', p_mg: 'mineral', k_mg: 'mineral', na_mg: 'mineral',
+    cl_g: 'mineral', mg_mg: 'mineral', fe_mg: 'mineral', cu_mg: 'mineral',
+    zn_mg: 'mineral', mn_mg: 'mineral', iodine_ug: 'mineral', se_ug: 'mineral',
+    vita_iu: 'vitamin', vitd_iu: 'vitamin', vite_iu: 'vitamin', vitk_mg: 'vitamin',
+    b1_mg: 'vitamin', b2_mg: 'vitamin', b3_mg: 'vitamin', b5_mg: 'vitamin',
+    b6_mg: 'vitamin', b9_ug: 'vitamin', b12_ug: 'vitamin', choline_mg: 'vitamin',
+    arg_g: 'aa', his_g: 'aa', ile_g: 'aa', leu_g: 'aa', lys_g: 'aa',
+    met_g: 'aa', cys_g: 'aa', phe_g: 'aa', tyr_g: 'aa', thr_g: 'aa',
+    trp_g: 'aa', val_g: 'aa', met_cys_g: 'aa', phe_tyr_g: 'aa',
+    taurine_g: 'other',
+  };
+  const SECTION_LABELS = {
+    macro: '巨量營養素', mineral: '礦物質', vitamin: '維生素',
+    aa: '必需胺基酸', other: '參考用 / 心臟保健'
+  };
+
+  function fmtNutVal(v) {
+    if (v == null || !isFinite(v)) return '—';
+    if (Math.abs(v) >= 100) return v.toFixed(0);
+    if (Math.abs(v) >= 10) return v.toFixed(1);
+    if (Math.abs(v) >= 0.1) return v.toFixed(2);
+    return v.toFixed(3);
+  }
+
+  function renderFullDash(achievement) {
+    const sectionOrder = ['macro', 'mineral', 'vitamin', 'aa', 'other'];
+    const grouped = { macro: [], mineral: [], vitamin: [], aa: [], other: [] };
+    for (const r of achievement) {
+      const sec = NUTRIENT_SECTION[r.key] || 'other';
+      grouped[sec].push(r);
+    }
+    const wrap = el('div', { class: 'dashboard gen-full-dash' });
+    for (const sec of sectionOrder) {
+      const items = grouped[sec];
+      if (!items || items.length === 0) continue;
+      wrap.appendChild(el('div', { class: 'dash-section-header ' + sec }, SECTION_LABELS[sec]));
+      for (const r of items) {
+        const barWidth = r.pct != null ? Math.min(100, Math.max(2, r.pct * 100)) : 0;
+        let rangeText = '';
+        if (r.is_taurine) {
+          rangeText = `心臟預防 ${fmtNutVal(r.dailyMin)} ~ ${fmtNutVal(r.dailyMax)} (50-100 mg/kg)`;
+        } else if (r.dailyMin != null && r.dailyMax != null) {
+          rangeText = `建議 ${fmtNutVal(r.dailyMin)} ~ ${fmtNutVal(r.dailyMax)}`;
+        } else if (r.dailyMin != null) {
+          rangeText = `最低 ${fmtNutVal(r.dailyMin)}`;
+        } else {
+          rangeText = '參考用';
+        }
+        const providedText = `實際 ${fmtNutVal(r.provided)} ${r.unit || ''}`;
+        wrap.appendChild(el('div', { class: 'dash-row status-' + r.status }, [
+          el('div', { class: 'dash-row-main' }, [
+            el('div', { class: 'dash-name' }, [
+              r.name,
+              el('span', { class: 'dash-unit' }, ' (' + (r.unit || '') + ')')
+            ]),
+            el('div', { class: 'dash-bar-wrap' },
+              el('div', { class: 'dash-bar', style: `width: ${barWidth}%` })
+            ),
+            el('div', { class: 'dash-pct' }, fmtPctVal(r.pct))
+          ]),
+          el('div', { class: 'dash-detail' },
+            r.is_taurine ? `${providedText} · ${rangeText}` : `${providedText} / ${rangeText}`
+          )
+        ]));
+      }
+    }
+    return wrap;
   }
 
   // ============================================================
@@ -384,6 +494,15 @@
     }
 
     children.push(el('div', { class: 'gen-mini-dash' }, dashRows));
+
+    // 完整營養分析 (折疊) — 跟計算器頁同樣分區/呈現
+    const fullDashDetails = document.createElement('details');
+    fullDashDetails.className = 'gen-full-dash-wrap';
+    const summary = document.createElement('summary');
+    summary.innerHTML = '📋 <b>完整營養分析</b>（' + v.achievement.length + ' 項，點開展開）';
+    fullDashDetails.appendChild(summary);
+    fullDashDetails.appendChild(renderFullDash(v.achievement));
+    children.push(fullDashDetails);
 
     children.push(el('div', { class: 'gen-variant-actions' }, [
       el('button', {
@@ -516,6 +635,7 @@
       return;
     }
     loadGen();
+    migrateSelections();   // 舊 LS s.grams → 新 s.portion (in native unit)
 
     // 基本參數
     const daysInput = document.getElementById('gen-days');

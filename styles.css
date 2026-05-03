@@ -2109,3 +2109,74 @@ html, body {
   padding: 8px 10px;
   margin-bottom: 10px;
 }
+
+/* gen 食材 input + unit 標籤 + g 換算 */
+.gen-sel-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0 6px 0 0;
+  min-width: 0;
+}
+.gen-sel-input-wrap input {
+  background: transparent !important;
+  border: none !important;
+  padding: 6px 4px 6px 8px !important;
+  flex: 1 1 0;
+  min-width: 0;
+  color: var(--text);
+}
+.gen-sel-input-wrap input:focus { outline: none; }
+.gen-sel-input-wrap:focus-within { border-color: var(--accent); }
+.gen-sel-unit {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--brown);
+  flex-shrink: 0;
+}
+.gen-sel-eq {
+  font-size: 10px;
+  color: var(--text-dim);
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* gen 完整營養分析摺疊 */
+.gen-full-dash-wrap {
+  margin: 8px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+.gen-full-dash-wrap > summary {
+  cursor: pointer;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: var(--brown-deep);
+  font-weight: 600;
+  list-style: none;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  position: relative;
+}
+.gen-full-dash-wrap > summary::-webkit-details-marker { display: none; }
+.gen-full-dash-wrap > summary::after {
+  content: '▼';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%) rotate(-90deg);
+  font-size: 10px;
+  transition: transform 0.2s;
+  color: var(--text-dim);
+}
+.gen-full-dash-wrap[open] > summary::after { transform: translateY(-50%) rotate(0deg); }
+.gen-full-dash-wrap[open] > summary {
+  border-bottom: 1px solid var(--border);
+}
+.gen-full-dash {
+  padding: 8px 10px;
+}
