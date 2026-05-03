@@ -205,7 +205,7 @@
   <!-- Footer -->
   <footer class="footer">
     <p>資料：Final xlsx 20260501 · AAFCO 2016 / NRC / TFDA / USDA</p>
-    <p><span class="version-tag">v20260501f_日誌版</span></p>
+    <p><span class="version-tag">v20260503_日誌增強版</span></p>
     <p class="disclaimer">本工具僅供參考，實際鮮食配方建議諮詢獸醫師。</p>
   </footer>
 
@@ -233,20 +233,32 @@
     </div>
   </section>
 
+  <!-- 統計小區塊 -->
+  <section class="card" id="diary-stats-card">
+    <h2 class="section-title">📊 最近 30 天統計</h2>
+    <div class="stats-block">
+      <h3 class="stats-subtitle">健康事件次數</h3>
+      <div id="stats-events" class="stats-events">
+        <p class="empty-state">最近 30 天無事件紀錄</p>
+      </div>
+    </div>
+    <div class="stats-block">
+      <h3 class="stats-subtitle">食譜輪替分布</h3>
+      <div id="stats-recipes" class="stats-recipes">
+        <p class="empty-state">尚未紀錄食譜</p>
+      </div>
+    </div>
+  </section>
+
   <!-- 餵食食譜歷史 -->
   <section class="card">
     <div class="section-header">
       <h2 class="section-title">餵食食譜紀錄</h2>
+      <button id="btn-range-fill" class="btn btn-secondary btn-mini" type="button" title="把同一份食譜套用到一段日期範圍">📆 區間填入</button>
     </div>
     <div id="recipe-history" class="recipe-history">
       <p class="empty-state">尚未加入任何食譜紀錄。先在計算器頁建好配方，再點「📅 加入日誌」</p>
     </div>
-  </section>
-
-  <!-- 事件統計 -->
-  <section class="card" id="event-stats-card" hidden>
-    <h2 class="section-title">事件統計（本月）</h2>
-    <div id="event-stats" class="event-stats"></div>
   </section>
 
   <footer class="footer">
@@ -270,6 +282,13 @@
     </header>
     <div class="food-modal-body">
       <div class="diary-form">
+        <div class="field" id="diary-existing-wrap" hidden>
+          <label for="diary-existing-recipe">使用現有食譜（選填）</label>
+          <select id="diary-existing-recipe">
+            <option value="">— 新建一筆食譜 —</option>
+          </select>
+          <p class="hint">選現有食譜會把它套到指定日期範圍；不選就用目前計算器的配方新建</p>
+        </div>
         <div class="field">
           <label for="diary-recipe-name">食譜名稱</label>
           <input type="text" id="diary-recipe-name" placeholder="例：11.5kg 心臟病配方">
@@ -296,6 +315,43 @@
     <div class="food-modal-footer">
       <button class="btn btn-secondary" type="button" data-close="add">取消</button>
       <button id="diary-save-btn" class="btn btn-primary" type="button">儲存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 日誌：區間填入 Modal                                           -->
+<!-- ============================================================ -->
+<div id="range-fill-modal" class="food-modal" hidden>
+  <div class="food-modal-backdrop" data-close="range"></div>
+  <div class="food-modal-content diary-modal">
+    <header class="food-modal-header">
+      <div class="food-modal-title-wrap">
+        <h3>📆 區間填入食譜</h3>
+        <p class="food-modal-meta">把同一份食譜套到一段日期範圍</p>
+      </div>
+      <button class="modal-close" type="button" data-close="range" aria-label="關閉">✕</button>
+    </header>
+    <div class="food-modal-body">
+      <div class="diary-form">
+        <div class="field">
+          <label for="range-recipe">選擇食譜</label>
+          <select id="range-recipe"></select>
+        </div>
+        <div class="field">
+          <label for="range-start">起始日期</label>
+          <input type="date" id="range-start">
+        </div>
+        <div class="field">
+          <label for="range-end">結束日期</label>
+          <input type="date" id="range-end">
+        </div>
+        <p class="hint">如果範圍內已有別的食譜紀錄，會被新的覆蓋</p>
+      </div>
+    </div>
+    <div class="food-modal-footer">
+      <button class="btn btn-secondary" type="button" data-close="range">取消</button>
+      <button id="range-fill-save" class="btn btn-primary" type="button">套用</button>
     </div>
   </div>
 </div>
@@ -349,6 +405,10 @@
         <div class="field" id="event-extra-medication" hidden>
           <label for="event-medication">藥名 / 劑量</label>
           <input type="text" id="event-medication" placeholder="例：Furosemide 12.5mg 1 顆">
+        </div>
+        <div class="field" id="event-extra-custom" hidden>
+          <label for="event-custom-name">事件名稱</label>
+          <input type="text" id="event-custom-name" placeholder="例：剪指甲、量心跳">
         </div>
         <div class="event-detail-actions">
           <button class="btn btn-secondary" type="button" id="event-cancel-btn">取消</button>
