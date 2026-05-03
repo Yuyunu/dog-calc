@@ -17,6 +17,9 @@
     maxAutoByCat: {          // 開放模式各類自動補上限
       meat: 2, veg: 2, egg: 1, grain: 1, supp: 3
     },
+    minAutoByCat: {          // 各類至少補幾樣 (強制) — 0 = 不強制
+      meat: 0, veg: 0, egg: 0, grain: 0, supp: 0
+    },
     selections: {},          // { foodName: { mode: 'lock'|'min'|'max'|'free', grams: number|null } }
     lastVariants: null
   };
@@ -32,6 +35,7 @@
         mode: GEN.mode,
         maxAuto: GEN.maxAuto,
         maxAutoByCat: GEN.maxAutoByCat,
+        minAutoByCat: GEN.minAutoByCat,
         selections: GEN.selections
       }));
     } catch (e) { console.warn('gen save fail', e); }
@@ -45,9 +49,8 @@
       if (d.targetKcal !== undefined) GEN.targetKcal = d.targetKcal;
       if (d.mode) GEN.mode = d.mode;
       if (d.maxAuto != null) GEN.maxAuto = d.maxAuto;
-      if (d.maxAutoByCat) {
-        Object.assign(GEN.maxAutoByCat, d.maxAutoByCat);
-      }
+      if (d.maxAutoByCat) Object.assign(GEN.maxAutoByCat, d.maxAutoByCat);
+      if (d.minAutoByCat) Object.assign(GEN.minAutoByCat, d.minAutoByCat);
       if (d.selections) GEN.selections = d.selections;
     } catch (e) { console.warn('gen load fail', e); }
   }
@@ -300,6 +303,7 @@
       selections: sels,           // 每日量
       mode: GEN.mode,
       maxAutoByCat: GEN.maxAutoByCat,  // 各類自動補上限
+      minAutoByCat: GEN.minAutoByCat,  // 各類強制最少
       maxAuto: GEN.maxAuto,            // legacy fallback
       numVariants: GEN.mode === 'open' ? 3 : 2
     });
@@ -816,7 +820,7 @@
     });
     document.getElementById('gen-maxauto-wrap').hidden = (GEN.mode !== 'open');
 
-    // 自動補上限 — 各類 slider
+    // 自動補上限 — 各類 slider (最多)
     document.querySelectorAll('.gen-cat-slider').forEach(slider => {
       const cat = slider.dataset.cat;
       const valEl = document.querySelector(`[data-cat-val="${cat}"]`);
@@ -828,6 +832,26 @@
         const n = parseInt(e.target.value, 10);
         GEN.maxAutoByCat[cat] = isFinite(n) ? n : 0;
         if (valEl) valEl.textContent = GEN.maxAutoByCat[cat];
+        // min 不能 > max
+        const minInput = document.querySelector(`[data-cat-min="${cat}"]`);
+        if (minInput && parseInt(minInput.value, 10) > n) {
+          minInput.value = n;
+          GEN.minAutoByCat[cat] = n;
+        }
+        saveGen();
+      });
+    });
+    // 自動補下限 — 各類 number input (最少, 強制)
+    document.querySelectorAll('.gen-cat-min').forEach(inp => {
+      const cat = inp.dataset.catMin;
+      if (GEN.minAutoByCat[cat] != null) inp.value = GEN.minAutoByCat[cat];
+      inp.addEventListener('input', e => {
+        let n = parseInt(e.target.value, 10);
+        if (!isFinite(n) || n < 0) n = 0;
+        const max = GEN.maxAutoByCat[cat] != null ? GEN.maxAutoByCat[cat] : 0;
+        if (n > max) n = max;
+        GEN.minAutoByCat[cat] = n;
+        e.target.value = n;
         saveGen();
       });
     });

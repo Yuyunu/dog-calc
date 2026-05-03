@@ -344,7 +344,7 @@
   function generate(opts) {
     const {
       foods, standards, weight, activity, targetKcal,
-      selections, mode, maxAuto, maxAutoByCat, numVariants
+      selections, mode, maxAuto, maxAutoByCat, minAutoByCat, numVariants
     } = opts;
 
     if (!selections || selections.length === 0) {
@@ -443,7 +443,8 @@
         candidatePool: candidatePoolWithLimit,
         userSelectedSet,
         maxAuto: mode === 'closed' ? 0 : maxAuto,
-        maxAutoByCat: mode === 'closed' ? null : maxAutoByCat,  // open 模式才用
+        maxAutoByCat: mode === 'closed' ? null : maxAutoByCat,
+        minAutoByCat: mode === 'closed' ? null : minAutoByCat,
         proteinBias,
         weight,
         maxGramsGetter: _maxGrams
@@ -491,7 +492,7 @@
     const {
       foodMap, standards, der, kcalCap,
       lockedPortions, candidatePool, userSelectedSet,
-      maxAuto, maxAutoByCat, proteinBias, weight, maxGramsGetter
+      maxAuto, maxAutoByCat, minAutoByCat, proteinBias, weight, maxGramsGetter
     } = opts;
 
     const portions = { ...lockedPortions };
@@ -569,6 +570,16 @@
 
         if (proteinBias && proteinBias.has(food.category)) score *= 1.25;
 
+        // 「最少」分桶 bonus — 若該類仍未滿 minAutoByCat → 給大量 score 偏好
+        if (minAutoByCat && !userSelectedSet.has(food.name)) {
+          const bucket = foodBucket(food);
+          const min = minAutoByCat[bucket] || 0;
+          if (min > 0 && (autoAddedByCat[bucket] || 0) < min) {
+            // 強烈傾向選這類 (即使對缺口幫助不大也要選)
+            score = Math.max(score, 0.01) * 3 + 1.0;
+          }
+        }
+
         if (score > bestScore + 1e-9) {
           bestScore = score;
           bestFood = food;
@@ -580,11 +591,41 @@
       portions[bestFood.name] = (portions[bestFood.name] || 0) + bestStep;
       if (!userSelectedSet.has(bestFood.name)) {
         if (!autoAdded.has(bestFood.name)) {
-          // 第一次加這個食材 → 增加對應分桶計數
           const bucket = foodBucket(bestFood);
           autoAddedByCat[bucket] = (autoAddedByCat[bucket] || 0) + 1;
         }
         autoAdded.add(bestFood.name);
+      }
+    }
+
+    // === 強制最少 post-pass ===
+    // 若 greedy 結束某類仍未達 minAutoByCat, 強制找該類食材 force-add 5g
+    if (minAutoByCat) {
+      let safety = 30;
+      while (safety-- > 0) {
+        let underBucket = null;
+        for (const [bk, mn] of Object.entries(minAutoByCat)) {
+          if (mn > 0 && (autoAddedByCat[bk] || 0) < mn) { underBucket = bk; break; }
+        }
+        if (!underBucket) break;
+        // 找這類最便宜 / kcal 最低的可加候選 (還沒被加)
+        const totals = calcTotals(portions, foodMap);
+        let pick = null;
+        let bestKcal = Infinity;
+        for (const f of candidatePool) {
+          if (userSelectedSet.has(f.name)) continue;
+          if (autoAdded.has(f.name)) continue;
+          if (foodBucket(f) !== underBucket) continue;
+          const step = stepGramsFor(f);
+          const kcalAdd = (f.kcal || 0) * step;
+          if ((totals.kcal || 0) + kcalAdd > kcalCap) continue;
+          if (kcalAdd < bestKcal) { bestKcal = kcalAdd; pick = f; }
+        }
+        if (!pick) break;
+        const step = stepGramsFor(pick);
+        portions[pick.name] = (portions[pick.name] || 0) + step;
+        autoAdded.add(pick.name);
+        autoAddedByCat[underBucket] = (autoAddedByCat[underBucket] || 0) + 1;
       }
     }
 

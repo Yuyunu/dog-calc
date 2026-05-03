@@ -242,35 +242,46 @@
       </label>
     </div>
     <div class="field" id="gen-maxauto-wrap" hidden>
-      <label>最多自動補食材數量（依類別）</label>
+      <label>自動補食材數量（依類別）</label>
+      <div class="gen-cat-header">
+        <span></span>
+        <span class="gen-cat-th">最少</span>
+        <span class="gen-cat-th">最多</span>
+        <span></span>
+      </div>
       <div class="gen-cat-grid">
         <div class="gen-cat-row">
           <span class="gen-cat-label">🥩 肉/海鮮</span>
+          <input type="number" class="gen-cat-min" data-cat-min="meat" min="0" max="6" value="0">
           <input type="range" data-cat="meat" min="0" max="6" value="2" step="1" class="gen-cat-slider">
           <span class="gen-cat-val" data-cat-val="meat">2</span>
         </div>
         <div class="gen-cat-row">
           <span class="gen-cat-label">🥬 蔬菜/水果</span>
+          <input type="number" class="gen-cat-min" data-cat-min="veg" min="0" max="6" value="0">
           <input type="range" data-cat="veg" min="0" max="6" value="2" step="1" class="gen-cat-slider">
           <span class="gen-cat-val" data-cat-val="veg">2</span>
         </div>
         <div class="gen-cat-row">
           <span class="gen-cat-label">🥚 蛋類</span>
+          <input type="number" class="gen-cat-min" data-cat-min="egg" min="0" max="2" value="0">
           <input type="range" data-cat="egg" min="0" max="2" value="1" step="1" class="gen-cat-slider">
           <span class="gen-cat-val" data-cat-val="egg">1</span>
         </div>
         <div class="gen-cat-row">
           <span class="gen-cat-label">🌾 穀物/根莖</span>
+          <input type="number" class="gen-cat-min" data-cat-min="grain" min="0" max="3" value="0">
           <input type="range" data-cat="grain" min="0" max="3" value="1" step="1" class="gen-cat-slider">
           <span class="gen-cat-val" data-cat-val="grain">1</span>
         </div>
         <div class="gen-cat-row">
           <span class="gen-cat-label">💊 補充品/油脂</span>
+          <input type="number" class="gen-cat-min" data-cat-min="supp" min="0" max="5" value="0">
           <input type="range" data-cat="supp" min="0" max="5" value="3" step="1" class="gen-cat-slider">
           <span class="gen-cat-val" data-cat-val="supp">3</span>
         </div>
       </div>
-      <p class="hint">每類達到上限就停止加該類食材（拉到 0 = 該類不自動補）</p>
+      <p class="hint">「最少」= 強制至少補幾樣 · 「最多」= 上限. 拉到 0 = 不自動補</p>
     </div>
   </section>
 
