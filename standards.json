@@ -396,6 +396,26 @@
    "high_warn": "鐵過量 / 銅不足 → 銅利用率下降、貧血風險"
   },
   {
+   "key": "k_na",
+   "name": "鉀鈉比 (K:Na)",
+   "numerator": "k_mg",
+   "denominator": "na_mg",
+   "ideal_min": 4.0,
+   "ideal_max": 10.0,
+   "ideal_label": "4:1 ~ 10:1",
+   "low_warn": "鉀不足 / 鈉過高 → 心臟腎臟負擔加重、水腫、血壓上升 (cardiac/renal 高風險)",
+   "high_warn": "鉀過高 / 鈉不足 → 高鉀血症 (心律不整風險)、低鈉血症"
+  },
+  {
+   "key": "vite_pufa",
+   "name": "維生素 E : PUFA (mg/g)",
+   "numerator": "vite_mg",
+   "denominator": "pufa_g",
+   "ideal_min": 0.6,
+   "ideal_label": "≥ 0.6 mg/g (AAFCO)",
+   "low_warn": "Vit E 不足保護不了 PUFA → 脂肪酸氧化產生自由基, 細胞膜損傷、脂肪肝、貧血風險"
+  },
+  {
    "key": "omega_6_3",
    "name": "Omega-6 : Omega-3",
    "numerator": "omega6_g",

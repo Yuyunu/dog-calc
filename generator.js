@@ -492,6 +492,7 @@
   function getTotalRatio(totals, key) {
     if (key === 'met_cys_g') return (totals.met_g || 0) + (totals.cys_g || 0);
     if (key === 'phe_tyr_g') return (totals.phe_g || 0) + (totals.tyr_g || 0);
+    if (key === 'pufa_g')    return (totals.omega6_g || 0) + (totals.omega3_g || 0);
     return totals[key] || 0;
   }
 

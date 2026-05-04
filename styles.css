@@ -27,9 +27,9 @@
   --ok-border: #b7d7a0;
   --ok-text: #4a7a2e;
 
-  --warn-bg: #f4ead7;        /* 暖棕底 (取代之前金黃) */
-  --warn-border: #d8bf8e;
-  --warn-text: #8B6F47;
+  --warn-bg: #fff5cc;        /* 淺黃底 (不足/過低警示) */
+  --warn-border: #f0d050;
+  --warn-text: #8a6914;       /* 深琥珀字 (對白底有對比) */
 
   --bad-bg: #fae2de;
   --bad-border: #e4a69c;
@@ -98,9 +98,9 @@
     --ok-border: #5a7a3a;
     --ok-text: #b5d595;
 
-    --warn-bg: #3a2e18;
-    --warn-border: #6b5635;
-    --warn-text: #d4b58a;
+    --warn-bg: #3a3018;
+    --warn-border: #8a7028;
+    --warn-text: #ecc968;       /* 黃 (對深棕底有對比) */
 
     --bad-bg: #3d1e19;
     --bad-border: #7a3a30;
