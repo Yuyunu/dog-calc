@@ -438,52 +438,6 @@
    "high_warn": "鋅相對高 → 銅吸收受阻、可能貧血、毛髮褪色"
   },
   {
-   "key": "ca_per_1000kcal",
-   "name": "鈣 / 1000 kcal",
-   "numerator": "ca_mg",
-   "denominator": "kcal",
-   "scale": 1000,
-   "ideal_label": "1250 ~ 6250 mg",
-   "low_warn": "鈣供應不足 → 骨密度下降、低血鈣痙攣",
-   "high_warn": "鈣過量 → 鋅鐵吸收受阻、軟骨發育異常",
-   "ideal_min": 1250,
-   "ideal_max": 6250
-  },
-  {
-   "key": "p_per_1000kcal",
-   "name": "磷 / 1000 kcal",
-   "numerator": "p_mg",
-   "denominator": "kcal",
-   "scale": 1000,
-   "ideal_label": "1000 ~ 4000 mg",
-   "low_warn": "磷不足 → 骨骼脆弱、能量代謝下降",
-   "high_warn": "磷過量 → 心臟病/腎病進展加快 (ACVIM B1-B2 高風險!)",
-   "ideal_min": 1000,
-   "ideal_max": 4000
-  },
-  {
-   "key": "protein_per_1000kcal",
-   "name": "蛋白質 / 1000 kcal",
-   "numerator": "protein",
-   "denominator": "kcal",
-   "scale": 1000,
-   "ideal_label": "≥ 45 g",
-   "low_warn": "蛋白質不足 → 肌肉流失、免疫下降、傷口癒合慢",
-   "high_warn": "蛋白質過量 → 腎臟負擔加重 (慢性腎病犬要降)",
-   "ideal_min": 45
-  },
-  {
-   "key": "fat_per_1000kcal",
-   "name": "脂肪 / 1000 kcal",
-   "numerator": "fat",
-   "denominator": "kcal",
-   "scale": 1000,
-   "ideal_label": "≥ 13.8 g",
-   "low_warn": "脂肪不足 → 能量不足、脂溶性維生素吸收差、皮毛粗糙",
-   "high_warn": "脂肪過量 → 胰臟炎風險、肥胖、cardiac 心臟負擔",
-   "ideal_min": 13.8
-  },
-  {
    "key": "metcys_lys",
    "name": "(甲硫胺酸+半胱胺酸) / 離胺酸 (Met+Cys/Lys)",
    "numerator": "met_cys_g",
