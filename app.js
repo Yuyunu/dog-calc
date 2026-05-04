@@ -306,6 +306,42 @@ function renderDMAnalysis(totals) {
   renderPctRow('dm-fat', '脂肪在乾物質中的比例', fat);
   renderPctRow('dm-carb', '碳水化合物在乾物質中的比例', carb);
   renderPctRow('dm-fiber', '膳食纖維在乾物質中的比例', fiber);
+
+  // 礦物質 DM 分析
+  // 巨量礦物質 Ca/P/Na: 顯示 g + % DM
+  // 微量礦物質 Zn/Cu/Fe: 顯示 mg + mg/kg DM
+  const ca = totals.ca_mg || 0;     // mg
+  const p = totals.p_mg || 0;        // mg
+  const na = totals.na_mg || 0;      // mg
+  const zn = totals.zn_mg || 0;      // mg
+  const cu = totals.cu_mg || 0;      // mg
+  const fe = totals.fe_mg || 0;      // mg
+
+  // % DM = mg / (dry_g × 1000) × 100 = mg / dry_g / 10
+  document.getElementById('dm-ca').textContent = fmt(ca, 1) + ' mg';
+  document.getElementById('dm-ca-pct').textContent = dry > 0 ? (ca / dry / 10).toFixed(2) + '%' : '—';
+  document.getElementById('dm-p').textContent = fmt(p, 1) + ' mg';
+  document.getElementById('dm-p-pct').textContent = dry > 0 ? (p / dry / 10).toFixed(2) + '%' : '—';
+  document.getElementById('dm-na').textContent = fmt(na, 1) + ' mg';
+  document.getElementById('dm-na-pct').textContent = dry > 0 ? (na / dry / 10).toFixed(2) + '%' : '—';
+
+  // 微量礦物質: mg/kg DM = mg / dry_g × 1000
+  const znDM = dry > 0 ? zn / dry * 1000 : 0;
+  const znEl = document.getElementById('dm-zn');
+  const znPctEl = document.getElementById('dm-zn-pct');
+  znEl.textContent = fmt(zn, 2) + ' mg';
+  if (dry > 0) {
+    znPctEl.textContent = znDM.toFixed(0) + ' mg/kg';
+    // 上限警示 ≤ 1000 mg/kg DM
+    znPctEl.style.color = znDM > 1000 ? 'var(--bad-text)' : '';
+    znPctEl.style.fontWeight = znDM > 1000 ? '700' : '';
+  } else {
+    znPctEl.textContent = '—';
+  }
+  document.getElementById('dm-cu').textContent = fmt(cu, 2) + ' mg';
+  document.getElementById('dm-cu-pct').textContent = dry > 0 ? (cu / dry * 1000).toFixed(0) + ' mg/kg' : '—';
+  document.getElementById('dm-fe').textContent = fmt(fe, 2) + ' mg';
+  document.getElementById('dm-fe-pct').textContent = dry > 0 ? (fe / dry * 1000).toFixed(0) + ' mg/kg' : '—';
 }
 
 // ============================================================

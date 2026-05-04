@@ -380,9 +380,20 @@
    "denominator": "p_mg",
    "ideal_min": 1.0,
    "ideal_max": 2.0,
-   "ideal_label": "1:1 ~ 2:1",
+   "ideal_label": "AAFCO 成犬 1:1 ~ 2:1 (幼犬 1:1 ~ 1.8:1)",
    "low_warn": "鈣不足 / 磷過高 → 骨質疏鬆、心臟腎臟負擔加重 (cardiac/renal 高風險)",
    "high_warn": "鈣過高 / 磷不足 → 鋅、鐵、銅吸收受阻、能量代謝失衡"
+  },
+  {
+   "key": "fe_cu",
+   "name": "鐵銅比 (Fe:Cu)",
+   "numerator": "fe_mg",
+   "denominator": "cu_mg",
+   "ideal_min": 4.0,
+   "ideal_max": 15.0,
+   "ideal_label": "4:1 ~ 15:1",
+   "low_warn": "銅相對偏高 → 銅蓄積、肝損傷風險、鐵吸收受阻",
+   "high_warn": "鐵過量 / 銅不足 → 銅利用率下降、貧血風險"
   },
   {
    "key": "omega_6_3",

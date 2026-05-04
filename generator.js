@@ -417,9 +417,63 @@
       ]),
     ];
 
+    // 礦物質 DM 分析 (Ca/P/Na 用 % DM, Zn/Cu/Fe 用 mg/kg DM)
+    const ca = totals.ca_mg || 0;
+    const p = totals.p_mg || 0;
+    const na = totals.na_mg || 0;
+    const zn = totals.zn_mg || 0;
+    const cu = totals.cu_mg || 0;
+    const fe = totals.fe_mg || 0;
+    const fmtMg = v => fmtNutVal(v) + ' mg';
+    const fmtPctMineral = v => dry > 0 ? (v / dry / 10).toFixed(2) + '%' : '—';
+    const fmtMgPerKg = v => dry > 0 ? (v / dry * 1000).toFixed(0) + ' mg/kg' : '—';
+    const znDM = dry > 0 ? zn / dry * 1000 : 0;
+    const znOver = znDM > 1000;
+
+    rows.push(el('div', { class: 'dm-row dm-meta dm-em', style: 'margin-top:4px;' }, [
+      el('span', { class: 'dm-name' }, '— 礦物質 (DM 基準) —'),
+      el('span', {}, ''), el('span', {}, '')
+    ]));
+    rows.push(el('div', { class: 'dm-row' }, [
+      el('span', { class: 'dm-name' }, '鈣 (Ca)'),
+      el('span', { class: 'dm-amount' }, fmtMg(ca)),
+      el('span', { class: 'dm-pct' }, fmtPctMineral(ca))
+    ]));
+    rows.push(el('div', { class: 'dm-row' }, [
+      el('span', { class: 'dm-name' }, '磷 (P)'),
+      el('span', { class: 'dm-amount' }, fmtMg(p)),
+      el('span', { class: 'dm-pct' }, fmtPctMineral(p))
+    ]));
+    rows.push(el('div', { class: 'dm-row' }, [
+      el('span', { class: 'dm-name' }, '鈉 (Na)'),
+      el('span', { class: 'dm-amount' }, fmtMg(na)),
+      el('span', { class: 'dm-pct' }, fmtPctMineral(na))
+    ]));
+    rows.push(el('div', { class: 'dm-row' }, [
+      el('span', { class: 'dm-name' }, [
+        '鋅 (Zn) ',
+        el('span', { class: 'dm-formula' }, '上限 ≤ 1000 mg/kg DM')
+      ]),
+      el('span', { class: 'dm-amount' }, fmtMg(zn)),
+      el('span', {
+        class: 'dm-pct',
+        style: znOver ? 'color: var(--bad-text); font-weight: 700;' : ''
+      }, fmtMgPerKg(zn))
+    ]));
+    rows.push(el('div', { class: 'dm-row' }, [
+      el('span', { class: 'dm-name' }, '銅 (Cu)'),
+      el('span', { class: 'dm-amount' }, fmtMg(cu)),
+      el('span', { class: 'dm-pct' }, fmtMgPerKg(cu))
+    ]));
+    rows.push(el('div', { class: 'dm-row' }, [
+      el('span', { class: 'dm-name' }, '鐵 (Fe)'),
+      el('span', { class: 'dm-amount' }, fmtMg(fe)),
+      el('span', { class: 'dm-pct' }, fmtMgPerKg(fe))
+    ]));
+
     return el('div', { class: 'gen-full-section' }, [
       el('div', { class: 'gen-full-section-title' }, '乾物質基礎分析'),
-      el('p', { class: 'hint', style: 'margin: 0 0 6px 0; font-size: 11px;' }, '乾物質 = 總食物 − 水分'),
+      el('p', { class: 'hint', style: 'margin: 0 0 6px 0; font-size: 11px;' }, '乾物質 = 總食物 − 水分 · 巨量礦 % DM, 微量礦 mg/kg DM'),
       el('div', { class: 'dm-grid' }, rows)
     ]);
   }

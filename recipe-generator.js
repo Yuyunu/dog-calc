@@ -172,6 +172,21 @@
     return true;
   }
 
+  // Zn ≤ 1000 mg/kg DM 硬限制檢查
+  // 加入 step 量後, Zn / DM × 1000 是否會超過 1000 mg/kg DM
+  function wouldExceedZnDM(food, step, totals) {
+    const totalGrams = totals._totalGrams || 0;
+    const water = totals.water_g || 0;
+    const dmCur = Math.max(0, totalGrams - water);
+    // 加入此食材後新的 dry matter
+    const waterAdd = (food.water_g || 0) * step;
+    const dmAdd = step - waterAdd;
+    const dmFuture = dmCur + dmAdd;
+    if (dmFuture <= 0) return false;
+    const znFuture = (totals.zn_mg || 0) + (food.zn_mg || 0) * step;
+    return (znFuture / dmFuture * 1000) > 1000;
+  }
+
   function computeDeficits(totals, targets) {
     const deficits = {};
     for (const [k, target] of Object.entries(targets)) {
@@ -600,12 +615,11 @@
           if (future > mx) { wouldExceedMax = true; break; }
         }
         if (wouldExceedMax) continue;
-        // 鈣磷比硬限制: 不能讓 Ca/P > 2.0 (除非加這個食材會降低比例)
-        if (!wouldExceedRatio(food, step, totals, 'ca_mg', 'p_mg', 2.0)) {
-          // 通過
-        } else {
-          continue;
-        }
+        // 鈣磷比硬限制: 不能讓 Ca/P > 2.0
+        if (wouldExceedRatio(food, step, totals, 'ca_mg', 'p_mg', 2.0)) continue;
+        if (wouldExceedZnDM(food, step, totals)) continue;
+        // Zn ≤ 1000 mg/kg DM 硬限制
+        if (wouldExceedZnDM(food, step, totals)) continue;
 
         if (proteinBias && proteinBias.has(food.category)) score *= 1.25;
 
@@ -695,6 +709,7 @@
           }
           if (blocked) continue;
           if (wouldExceedRatio(food, step, t, 'ca_mg', 'p_mg', 2.0)) continue;
+          if (wouldExceedZnDM(food, step, t)) continue;
           // Score
           let s = 0;
           for (const [k, info] of Object.entries(def)) {
@@ -754,6 +769,7 @@
           if (blocked) continue;
           // Ca:P 不超
           if (wouldExceedRatio(food, step, t, 'ca_mg', 'p_mg', 2.0)) continue;
+          if (wouldExceedZnDM(food, step, t)) continue;
           // Score: 對剩餘 deficit 的覆蓋率 (純缺口導向, 不算 bias / variety)
           let s = 0;
           for (const [k, info] of Object.entries(def)) {
@@ -850,6 +866,7 @@
               }
               if (blocked) continue;
               if (wouldExceedRatio(food, step, tNew, 'ca_mg', 'p_mg', 2.0)) continue;
+              if (wouldExceedZnDM(food, step, tNew)) continue;
               let s = 0;
               for (const [k, info] of Object.entries(defNew)) {
                 const perG = getFoodNutrient(food, k);
@@ -913,6 +930,7 @@
       if (exceeds) continue;
       // Ca:P 比也不能超
       if (wouldExceedRatio(food, step, totals, 'ca_mg', 'p_mg', 2.0)) continue;
+      if (wouldExceedZnDM(food, step, totals)) continue;
       portions[food.name] = step;
     }
 
@@ -947,6 +965,7 @@
           if (exceeds) continue;
           // Ca:P 比也不能超
           if (wouldExceedRatio(f, step, totals, 'ca_mg', 'p_mg', 2.0)) continue;
+          if (wouldExceedZnDM(f, step, totals)) continue;
           if (kcalAdd < bestKcal) { bestKcal = kcalAdd; pick = f; }
         }
         if (!pick) break;
