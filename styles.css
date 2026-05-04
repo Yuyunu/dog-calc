@@ -883,20 +883,35 @@ html, body {
   font-size: 14px;
 }
 
+/* 比例分析專用色: 飽和鮮黃 (跟乾物質% 用的淡黃做區分) */
+:root {
+  --ratio-warn-bg: #fff200;        /* 鮮黃底 */
+  --ratio-warn-border: #d4b800;    /* 黃邊 */
+  --ratio-warn-text: #4a3a00;       /* 深黃褐字 (黃底高對比) */
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ratio-warn-bg: #d4b800;       /* 飽和金黃 dark mode */
+    --ratio-warn-border: #fff200;
+    --ratio-warn-text: #1a1500;
+  }
+}
+
 .ratio-row .ratio-value.ok { color: var(--ok-text); }
-.ratio-row .ratio-value.warn { color: var(--warn-text); }
+.ratio-row .ratio-value.warn { color: var(--ratio-warn-text); background: var(--ratio-warn-bg); padding: 1px 6px; border-radius: 4px; }
 .ratio-row .ratio-value.bad { color: var(--bad-text); }
 .ratio-row .ratio-value.ref { color: var(--ref-text); }
 
 .ratio-row .ratio-warning {
   margin-top: 5px;
   padding: 6px 10px;
-  background: var(--warn-bg);
-  color: var(--warn-text);
-  border: 1px solid var(--warn-border);
+  background: var(--ratio-warn-bg);
+  color: var(--ratio-warn-text);
+  border: 1px solid var(--ratio-warn-border);
   border-radius: var(--radius-sm);
   font-size: 11.5px;
   line-height: 1.4;
+  font-weight: 600;
 }
 
 .ratio-row .ratio-warning-icon {
@@ -906,7 +921,10 @@ html, body {
 }
 
 .ratio-row.status-warn .ratio-name {
-  color: var(--warn-text);
+  color: var(--ratio-warn-text);
+  background: var(--ratio-warn-bg);
+  padding: 1px 6px;
+  border-radius: 4px;
 }
 
 /* ============================================================
