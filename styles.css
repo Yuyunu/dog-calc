@@ -794,16 +794,12 @@ html, body {
   padding-left: 8px;
 }
 .dash-row-compact.status-warn {
-  border-left: 3px solid var(--ratio-warn-border);
+  border-left: 3px solid var(--warn-border);
   padding-left: 8px;
-  background: var(--ratio-warn-bg);
-  color: var(--ratio-warn-text);
+  background: var(--warn-bg);
 }
-.dash-row-compact.status-warn .dash-pct,
-.dash-row-compact.status-warn .dash-name,
-.dash-row-compact.status-warn .dash-detail {
-  color: var(--ratio-warn-text) !important;
-  background: transparent !important;
+.dash-row-compact.status-warn .dash-pct {
+  color: #d4a000 !important;     /* 不足 → 鮮黃字 */
 }
 .dash-row-compact.status-bad {
   border-left: 3px solid var(--bad-text);
@@ -905,35 +901,35 @@ html, body {
 }
 
 .ratio-row .ratio-value.ok { color: var(--ok-text); }
-.ratio-row .ratio-value.warn { color: var(--ratio-warn-text); }
+/* 不足時數值用鮮黃字體 (整列不上底色, 名字維持深字) */
+.ratio-row .ratio-value.warn {
+  color: #d4a000;
+  font-weight: 800;
+}
 .ratio-row .ratio-value.bad { color: var(--bad-text); }
 .ratio-row .ratio-value.ref { color: var(--ref-text); }
 
-/* 警示時整列底色變鮮黃, 文字本身不再加 pill 底色 */
-.ratio-row.status-warn {
-  background: var(--ratio-warn-bg);
-  border-radius: var(--radius-sm);
-  padding-left: 8px;
-  padding-right: 8px;
-  border-left: 3px solid var(--ratio-warn-border);
-}
-.ratio-row.status-warn .ratio-name,
-.ratio-row.status-warn .ratio-value.warn {
-  color: var(--ratio-warn-text);
-}
-
+/* 警示說明文字 (例如「↓ 鉀不足/鈉過高...」) 用淡黃底色 */
 .ratio-row .ratio-warning {
-  margin-top: 4px;
+  margin-top: 5px;
+  padding: 6px 10px;
+  background: var(--warn-bg);          /* 淡黃底 #fff5cc */
+  color: var(--warn-text);              /* 深琥珀字 */
+  border: 1px solid var(--warn-border);
+  border-radius: var(--radius-sm);
   font-size: 11.5px;
   line-height: 1.4;
-  color: var(--ratio-warn-text);
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .ratio-row .ratio-warning-icon {
   font-weight: 700;
   font-size: 13px;
   margin-right: 2px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .ratio-row .ratio-value.warn { color: #ffd838; }
 }
 
 /* ============================================================
