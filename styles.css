@@ -770,8 +770,12 @@ html, body {
 .dash-row-compact {
   padding: 4px 4px;
 }
+.dash-row-compact .dash-bar-wrap,
+.dash-row-compact .dash-bar {
+  display: none !important;             /* 雙保險: 即使 render 了也隱藏 */
+}
 .dash-row-compact .dash-row-main {
-  grid-template-columns: 1fr auto;     /* 名字 | 百分比 */
+  grid-template-columns: 1fr auto !important;  /* 名字 | 百分比 (覆蓋舊 3-col) */
   gap: 8px;
 }
 .dash-row-compact .dash-pct {

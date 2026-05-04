@@ -380,7 +380,7 @@
    "denominator": "p_mg",
    "ideal_min": 1.0,
    "ideal_max": 2.0,
-   "ideal_label": "AAFCO 成犬 1:1 ~ 2:1 (幼犬 1:1 ~ 1.8:1)",
+   "ideal_label": "AAFCO 成犬 1:1 ~ 2:1",
    "low_warn": "鈣不足 / 磷過高 → 骨質疏鬆、心臟腎臟負擔加重 (cardiac/renal 高風險)",
    "high_warn": "鈣過高 / 磷不足 → 鋅、鐵、銅吸收受阻、能量代謝失衡"
   },
