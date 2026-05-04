@@ -794,9 +794,16 @@ html, body {
   padding-left: 8px;
 }
 .dash-row-compact.status-warn {
-  border-left: 3px solid var(--warn-text);
+  border-left: 3px solid var(--ratio-warn-border);
   padding-left: 8px;
-  background: var(--warn-bg);
+  background: var(--ratio-warn-bg);
+  color: var(--ratio-warn-text);
+}
+.dash-row-compact.status-warn .dash-pct,
+.dash-row-compact.status-warn .dash-name,
+.dash-row-compact.status-warn .dash-detail {
+  color: var(--ratio-warn-text) !important;
+  background: transparent !important;
 }
 .dash-row-compact.status-bad {
   border-left: 3px solid var(--bad-text);
@@ -898,19 +905,28 @@ html, body {
 }
 
 .ratio-row .ratio-value.ok { color: var(--ok-text); }
-.ratio-row .ratio-value.warn { color: var(--ratio-warn-text); background: var(--ratio-warn-bg); padding: 1px 6px; border-radius: 4px; }
+.ratio-row .ratio-value.warn { color: var(--ratio-warn-text); }
 .ratio-row .ratio-value.bad { color: var(--bad-text); }
 .ratio-row .ratio-value.ref { color: var(--ref-text); }
 
-.ratio-row .ratio-warning {
-  margin-top: 5px;
-  padding: 6px 10px;
+/* 警示時整列底色變鮮黃, 文字本身不再加 pill 底色 */
+.ratio-row.status-warn {
   background: var(--ratio-warn-bg);
-  color: var(--ratio-warn-text);
-  border: 1px solid var(--ratio-warn-border);
   border-radius: var(--radius-sm);
+  padding-left: 8px;
+  padding-right: 8px;
+  border-left: 3px solid var(--ratio-warn-border);
+}
+.ratio-row.status-warn .ratio-name,
+.ratio-row.status-warn .ratio-value.warn {
+  color: var(--ratio-warn-text);
+}
+
+.ratio-row .ratio-warning {
+  margin-top: 4px;
   font-size: 11.5px;
   line-height: 1.4;
+  color: var(--ratio-warn-text);
   font-weight: 600;
 }
 
@@ -918,13 +934,6 @@ html, body {
   font-weight: 700;
   font-size: 13px;
   margin-right: 2px;
-}
-
-.ratio-row.status-warn .ratio-name {
-  color: var(--ratio-warn-text);
-  background: var(--ratio-warn-bg);
-  padding: 1px 6px;
-  border-radius: 4px;
 }
 
 /* ============================================================
