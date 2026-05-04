@@ -548,17 +548,15 @@ function renderDashboard(achievement) {
     }
     const providedText = `實際 ${fmtVal(r.provided)} ${r.unit || ''}`;
 
+    // 緊湊版: 只顯示百分比 + 顏色, 不畫進度條
     const row = el('div', {
-      class: 'dash-row status-' + r.status
+      class: 'dash-row dash-row-compact status-' + r.status
     }, [
       el('div', { class: 'dash-row-main' }, [
         el('div', { class: 'dash-name' }, [
           r.name,
           el('span', { class: 'dash-unit' }, ' (' + (r.unit || '') + ')')
         ]),
-        el('div', { class: 'dash-bar-wrap' },
-          el('div', { class: 'dash-bar', style: `width: ${barWidth}%` })
-        ),
         el('div', { class: 'dash-pct' }, fmtPct(r.pct))
       ]),
       el('div', { class: 'dash-detail' },

@@ -766,6 +766,45 @@ html, body {
 .dash-row.status-ref .dash-bar { background: var(--ref-text); }
 .dash-row.status-ref .dash-pct { color: var(--ref-text); }
 
+/* 緊湊版 (計算器用) — 不畫進度條, 純百分比 + 顏色 */
+.dash-row-compact {
+  padding: 4px 4px;
+}
+.dash-row-compact .dash-row-main {
+  grid-template-columns: 1fr auto;     /* 名字 | 百分比 */
+  gap: 8px;
+}
+.dash-row-compact .dash-pct {
+  font-size: 15px;
+  font-weight: 800;
+  min-width: 56px;
+}
+.dash-row-compact .dash-detail {
+  margin-top: 2px;
+  font-size: 10px;
+  opacity: 0.85;
+}
+/* 不同 status 的小色塊提示 */
+.dash-row-compact.status-ok {
+  border-left: 3px solid var(--ok-text);
+  padding-left: 8px;
+}
+.dash-row-compact.status-warn {
+  border-left: 3px solid var(--warn-text);
+  padding-left: 8px;
+  background: var(--warn-bg);
+}
+.dash-row-compact.status-bad {
+  border-left: 3px solid var(--bad-text);
+  padding-left: 8px;
+  background: var(--bad-bg);
+}
+.dash-row-compact.status-ref {
+  border-left: 3px solid var(--ref-text);
+  padding-left: 8px;
+  opacity: 0.7;
+}
+
 .dashboard-summary {
   display: flex;
   gap: 6px;
