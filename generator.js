@@ -434,10 +434,18 @@
       el('span', { class: 'dm-name' }, '— 礦物質 (DM 基準) —'),
       el('span', {}, ''), el('span', {}, '')
     ]));
+    const caDMpct = dry > 0 ? ca / dry / 10 : 0;
+    const caOver = caDMpct > 1.5;
     rows.push(el('div', { class: 'dm-row' }, [
-      el('span', { class: 'dm-name' }, '鈣 (Ca)'),
+      el('span', { class: 'dm-name' }, [
+        '鈣 (Ca) ',
+        el('span', { class: 'dm-formula' }, '建議 ≤ 1.5% DM')
+      ]),
       el('span', { class: 'dm-amount' }, fmtMg(ca)),
-      el('span', { class: 'dm-pct' }, fmtPctMineral(ca))
+      el('span', {
+        class: 'dm-pct',
+        style: caOver ? 'color: var(--bad-text); font-weight: 700;' : ''
+      }, fmtPctMineral(ca))
     ]));
     rows.push(el('div', { class: 'dm-row' }, [
       el('span', { class: 'dm-name' }, '磷 (P)'),

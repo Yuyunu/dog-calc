@@ -319,7 +319,12 @@ function renderDMAnalysis(totals) {
 
   // % DM = mg / (dry_g × 1000) × 100 = mg / dry_g / 10
   document.getElementById('dm-ca').textContent = fmt(ca, 1) + ' mg';
-  document.getElementById('dm-ca-pct').textContent = dry > 0 ? (ca / dry / 10).toFixed(2) + '%' : '—';
+  const caDMpct = dry > 0 ? ca / dry / 10 : 0;
+  const caPctEl = document.getElementById('dm-ca-pct');
+  caPctEl.textContent = dry > 0 ? caDMpct.toFixed(2) + '%' : '—';
+  // 鈣 > 1.5% DM → 紅色警示
+  caPctEl.style.color = caDMpct > 1.5 ? 'var(--bad-text)' : '';
+  caPctEl.style.fontWeight = caDMpct > 1.5 ? '700' : '';
   document.getElementById('dm-p').textContent = fmt(p, 1) + ' mg';
   document.getElementById('dm-p-pct').textContent = dry > 0 ? (p / dry / 10).toFixed(2) + '%' : '—';
   document.getElementById('dm-na').textContent = fmt(na, 1) + ' mg';
