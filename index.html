@@ -11,7 +11,7 @@
 <meta http-equiv="Expires" content="0">
 <link rel="apple-touch-icon" href="icon.png">
 <link rel="icon" type="image/png" href="icon.png">
-<link rel="stylesheet" href="styles.css?v=20260503k">
+<link rel="stylesheet" href="styles.css?v=20260524a">
 <title>狗狗鮮食營養計算器 v2</title>
 </head>
 <body>
@@ -424,6 +424,17 @@
     </div>
   </section>
 
+  <!-- 備份 / 還原 -->
+  <section class="card">
+    <h2 class="section-title">💾 備份 / 還原</h2>
+    <p class="hint">日誌只存在這台裝置的瀏覽器,瀏覽器清除資料就會遺失。建議定期匯出備份。</p>
+    <div class="backup-btns">
+      <button id="btn-export-diary" class="btn btn-secondary" type="button">⬇️ 匯出備份</button>
+      <button id="btn-import-diary" class="btn btn-secondary" type="button">⬆️ 匯入還原</button>
+    </div>
+    <input id="import-diary-file" type="file" accept="application/json,.json" hidden>
+  </section>
+
   <footer class="footer">
     <p><span class="version-tag">日誌 v1</span> · 資料儲存於本機瀏覽器</p>
     <p class="disclaimer">所有日誌資料保存在你的瀏覽器，清除瀏覽器資料會遺失。</p>
@@ -649,10 +660,10 @@
   </button>
 </nav>
 
-<script src="data.js?v=20260503k"></script>
-<script src="app.js?v=20260503k"></script>
-<script src="recipe-generator.js?v=20260503k"></script>
-<script src="diary.js?v=20260503k"></script>
-<script src="generator.js?v=20260503k"></script>
+<script src="data.js?v=20260524a"></script>
+<script src="app.js?v=20260524a"></script>
+<script src="recipe-generator.js?v=20260524a"></script>
+<script src="diary.js?v=20260524a"></script>
+<script src="generator.js?v=20260524a"></script>
 </body>
 </html>

@@ -2188,6 +2188,14 @@ html, body {
   .bottom-nav { display: none !important; }
 }
 
+/* 備份 / 還原按鈕 */
+.backup-btns {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+.backup-btns .btn { flex: 1; }
+
 /* hint 變體：橘黃警示 (生成頁總量提示) */
 .hint.hint-warn {
   background: var(--warn-bg);

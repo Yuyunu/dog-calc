@@ -60,6 +60,69 @@ function saveDiary() {
 }
 
 // ============================================================
+// 備份 / 還原(匯出 / 匯入 JSON)
+// ============================================================
+function exportDiary() {
+  let raw = localStorage.getItem(DIARY_LS_KEY);
+  if (!raw) {
+    raw = JSON.stringify({
+      saved_recipes: DIARY_STATE.saved_recipes,
+      feeding_log: DIARY_STATE.feeding_log,
+      events: DIARY_STATE.events
+    });
+  }
+  const blob = new Blob([raw], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const d = new Date();
+  const stamp = d.getFullYear() +
+    String(d.getMonth() + 1).padStart(2, '0') +
+    String(d.getDate()).padStart(2, '0');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = '狗狗日誌備份_' + stamp + '.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1500);
+}
+
+function importDiary(file) {
+  const reader = new FileReader();
+  reader.onload = function () {
+    let data;
+    try {
+      data = JSON.parse(reader.result);
+    } catch (e) {
+      alert('讀取失敗:這個檔案不是有效的備份檔。');
+      return;
+    }
+    if (!data || typeof data !== 'object' ||
+        !('saved_recipes' in data || 'events' in data || 'feeding_log' in data)) {
+      alert('這個檔案看起來不是日誌備份檔。');
+      return;
+    }
+    const curN = DIARY_STATE.saved_recipes.length +
+      DIARY_STATE.events.length + DIARY_STATE.feeding_log.length;
+    const newN = (data.saved_recipes || []).length +
+      (data.events || []).length + (data.feeding_log || []).length;
+    if (!confirm('匯入備份會「取代」目前的日誌資料。\n\n目前共 ' + curN +
+        ' 筆\n備份檔共 ' + newN + ' 筆\n\n確定要匯入嗎?')) {
+      return;
+    }
+    DIARY_STATE.saved_recipes = data.saved_recipes || [];
+    DIARY_STATE.feeding_log = data.feeding_log || [];
+    DIARY_STATE.events = data.events || [];
+    saveDiary();
+    alert('✅ 匯入完成,已還原 ' + newN + ' 筆資料。頁面將重新整理。');
+    location.reload();
+  };
+  reader.onerror = function () {
+    alert('讀取檔案失敗,請再試一次。');
+  };
+  reader.readAsText(file);
+}
+
+// ============================================================
 // Date helpers
 // ============================================================
 function todayStr() {
@@ -811,6 +874,19 @@ function initDiary() {
   if (rangeBtn) rangeBtn.addEventListener('click', openRangeFillModal);
   const rangeSaveBtn = document.getElementById('range-fill-save');
   if (rangeSaveBtn) rangeSaveBtn.addEventListener('click', applyRangeFill);
+
+  // 備份 / 還原
+  const exportBtn = document.getElementById('btn-export-diary');
+  if (exportBtn) exportBtn.addEventListener('click', exportDiary);
+  const importBtn = document.getElementById('btn-import-diary');
+  const importFile = document.getElementById('import-diary-file');
+  if (importBtn && importFile) {
+    importBtn.addEventListener('click', function () { importFile.click(); });
+    importFile.addEventListener('change', function () {
+      if (importFile.files && importFile.files[0]) importDiary(importFile.files[0]);
+      importFile.value = '';
+    });
+  }
 
   // End-mode radio
   document.querySelectorAll('input[name="end-mode"]').forEach(r => {
