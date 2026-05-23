@@ -2140,6 +2140,12 @@ html, body {
   padding-bottom: var(--safe-bottom);
   box-shadow: 0 -2px 8px rgba(70,50,30,.06);
   z-index: 90;
+  /* iOS Safari:推上獨立繪製層,避免捲動時 fixed bar 跳動 */
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  will-change: transform;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 
 .bottom-nav .tab-btn {
