@@ -131,15 +131,8 @@ html, body {
   -webkit-tap-highlight-color: transparent;
 }
 
-/* iOS PWA: flex column 撐滿動態 viewport,bottom-nav 才能黏底 */
-html { height: 100%; }
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  min-height: 100dvh; /* iOS 16+ dynamic viewport */
-}
-main.container { flex: 1 0 auto; }
+/* iOS PWA: body 撐滿動態 viewport,fixed bottom-nav 才能算對位置 */
+html, body { min-height: 100vh; min-height: 100dvh; }
 
 /* ============================================================
    Header — 白底 + 綠 accent (light), 棕底 + 綠 accent (dark)
@@ -227,8 +220,8 @@ main.container { flex: 1 0 auto; }
   max-width: 600px;
   margin: 0 auto;
   padding: 12px;
-  /* bottom-nav 改 sticky 後不再需要 padding 保留空間;留點小空白避免內容黏太緊 */
-  padding-bottom: 16px;
+  /* 留空間給 fixed bottom-nav (~64px) + iOS home indicator */
+  padding-bottom: calc(80px + env(safe-area-inset-bottom));
 }
 
 .card {
@@ -2139,15 +2132,16 @@ main.container { flex: 1 0 auto; }
    底部 tab bar (bottom-nav) — fixed bottom, iOS-style
    ============================================================ */
 .bottom-nav {
-  /* iOS PWA 用 sticky + flex column 才會穩定黏底;fixed 在 iOS 16+ 動態 viewport 會浮在中間 */
-  position: sticky;
+  /* iOS PWA:純 fixed,不加 transform/will-change(會建立新 containing block 反而破 fixed) */
+  position: fixed;
   bottom: 0;
-  flex-shrink: 0;
+  left: 0;
+  right: 0;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   background: var(--card);
   border-top: 1px solid var(--border);
-  padding-bottom: var(--safe-bottom);
+  padding-bottom: env(safe-area-inset-bottom);
   box-shadow: 0 -2px 8px rgba(70,50,30,.06);
   z-index: 90;
 }
